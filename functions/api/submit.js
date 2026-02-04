@@ -54,13 +54,13 @@ export async function onRequestPost(context) {
   try {
     // Parse request body
     const data = await request.json();
-    const { email, answers, questions } = data;
+    const { name, email, answers, questions } = data;
     
     // Validate required data
-    if (!email || !answers || !questions) {
-      console.error('Missing required data:', { hasEmail: !!email, hasAnswers: !!answers, hasQuestions: !!questions });
+    if (!name || !email || !answers || !questions) {
+      console.error('Missing required data:', { hasName: !!name, hasEmail: !!email, hasAnswers: !!answers, hasQuestions: !!questions });
       return new Response(
-        JSON.stringify({ error: 'Missing required data: email, answers, or questions' }),
+        JSON.stringify({ error: 'Missing required data: name, email, answers, or questions' }),
         { 
           status: 400,
           headers: corsHeaders
@@ -68,7 +68,7 @@ export async function onRequestPost(context) {
       );
     }
     
-    console.log('Processing submission for:', email);
+    console.log('Processing submission for:', name, email);
     
     // Calculate results
     const totalScore = answers.reduce((sum, val) => sum + val, 0);
@@ -103,6 +103,15 @@ export async function onRequestPost(context) {
     
     // Prepare Notion page properties
     const properties = {
+      "Name": {
+        "title": [
+          {
+            "text": {
+              "content": name
+            }
+          }
+        ]
+      },
       "Email": {
         "email": email
       },
@@ -117,7 +126,7 @@ export async function onRequestPost(context) {
       "Score Percentage": {
         "number": percentage
       },
-      "Severity Level ": {
+      "Severity Level": {
         "select": {
           "name": severity
         }

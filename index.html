@@ -858,7 +858,17 @@
             emailForm.innerHTML = `
                 <div class="email-form-container">
                     <h2>Almost There!</h2>
-                    <p>Enter your email to receive your personalized spinal health assessment results</p>
+                    <p>Enter your information to receive your personalized spinal health assessment results</p>
+                    <div class="email-input-group">
+                        <label for="nameInput">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="nameInput" 
+                            placeholder="John Doe"
+                            autocomplete="name"
+                        />
+                        <div class="error-message" id="nameError">Please enter your name</div>
+                    </div>
                     <div class="email-input-group">
                         <label for="emailInput">Email Address</label>
                         <input 
@@ -878,21 +888,34 @@
             
             emailForm.classList.add('active');
             
+            const nameInput = document.getElementById('nameInput');
             const emailInput = document.getElementById('emailInput');
             const submitBtn = document.getElementById('submitEmailBtn');
-            const errorMsg = document.getElementById('emailError');
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
             
-            // Focus on email input
-            setTimeout(() => emailInput.focus(), 100);
+            // Focus on name input
+            setTimeout(() => nameInput.focus(), 100);
+            
+            // Name validation
+            nameInput.addEventListener('input', () => {
+                nameInput.classList.remove('error');
+                nameError.classList.remove('show');
+            });
             
             // Email validation
             emailInput.addEventListener('input', () => {
                 emailInput.classList.remove('error');
-                errorMsg.classList.remove('show');
+                emailError.classList.remove('show');
             });
             
             // Submit handler
             submitBtn.addEventListener('click', handleEmailSubmit);
+            nameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    emailInput.focus();
+                }
+            });
             emailInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     handleEmailSubmit();
@@ -906,15 +929,25 @@
         }
 
         async function handleEmailSubmit() {
+            const nameInput = document.getElementById('nameInput');
             const emailInput = document.getElementById('emailInput');
+            const name = nameInput.value.trim();
             const email = emailInput.value.trim();
-            const errorMsg = document.getElementById('emailError');
+            const nameError = document.getElementById('nameError');
+            const emailError = document.getElementById('emailError');
             const submitBtn = document.getElementById('submitEmailBtn');
+            
+            // Validate name
+            if (!name || name.length < 2) {
+                nameInput.classList.add('error');
+                nameError.classList.add('show');
+                return;
+            }
             
             // Validate email
             if (!email || !validateEmail(email)) {
                 emailInput.classList.add('error');
-                errorMsg.classList.add('show');
+                emailError.classList.add('show');
                 return;
             }
             
@@ -926,7 +959,7 @@
             
             try {
                 // Submit to Notion
-                await submitToNotion(email);
+                await submitToNotion(name, email);
                 
                 // Show success message briefly
                 document.getElementById('successMessage').classList.add('show');
@@ -955,11 +988,11 @@
             }
         }
 
-        async function submitToNotion(email) {
+        async function submitToNotion(name, email) {
             // Send quiz data to Cloudflare Pages Function
             // The function will securely handle the Notion API call
             console.log('Submitting to:', API_ENDPOINT);
-            console.log('Data:', { email, answers, questionsCount: questions.length });
+            console.log('Data:', { name, email, answers, questionsCount: questions.length });
             
             const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
@@ -967,6 +1000,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    name: name,
                     email: email,
                     answers: answers,
                     questions: questions
