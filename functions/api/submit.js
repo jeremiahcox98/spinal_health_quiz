@@ -6,19 +6,47 @@
 export async function onRequestPost(context) {
   const { request, env } = context;
   
+  // Add CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+  
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+  
   // Get environment variables
   const NOTION_API_TOKEN = env.NOTION_API_TOKEN;
   const NOTION_DATABASE_ID = env.NOTION_DATABASE_ID;
   
+  // Log for debugging (remove in production if sensitive)
+  console.log('Environment check:', {
+    hasToken: !!NOTION_API_TOKEN,
+    hasDbId: !!NOTION_DATABASE_ID,
+    dbIdLength: NOTION_DATABASE_ID?.length
+  });
+  
   // Validate environment variables
   if (!NOTION_API_TOKEN || !NOTION_DATABASE_ID) {
+    console.error('Missing environment variables:', {
+      hasToken: !!NOTION_API_TOKEN,
+      hasDbId: !!NOTION_DATABASE_ID
+    });
     return new Response(
       JSON.stringify({ 
-        error: 'Server configuration error: Missing Notion credentials' 
+        error: 'Server configuration error: Missing Notion credentials',
+        details: {
+          hasToken: !!NOTION_API_TOKEN,
+          hasDbId: !!NOTION_DATABASE_ID
+        }
       }),
       { 
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       }
     );
   }
@@ -30,14 +58,17 @@ export async function onRequestPost(context) {
     
     // Validate required data
     if (!email || !answers || !questions) {
+      console.error('Missing required data:', { hasEmail: !!email, hasAnswers: !!answers, hasQuestions: !!questions });
       return new Response(
         JSON.stringify({ error: 'Missing required data: email, answers, or questions' }),
         { 
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: corsHeaders
         }
       );
     }
+    
+    console.log('Processing submission for:', email);
     
     // Calculate results
     const totalScore = answers.reduce((sum, val) => sum + val, 0);
@@ -201,19 +232,22 @@ export async function onRequestPost(context) {
     if (!notionResponse.ok) {
       const errorData = await notionResponse.json();
       console.error('Notion API error:', errorData);
+      console.error('Notion API status:', notionResponse.status);
       return new Response(
         JSON.stringify({ 
           error: 'Failed to submit to Notion',
-          details: errorData
+          details: errorData,
+          status: notionResponse.status
         }),
         { 
           status: notionResponse.status,
-          headers: { 'Content-Type': 'application/json' }
+          headers: corsHeaders
         }
       );
     }
     
     const result = await notionResponse.json();
+    console.log('Successfully created Notion page:', result.id);
     
     return new Response(
       JSON.stringify({ 
@@ -222,20 +256,22 @@ export async function onRequestPost(context) {
       }),
       { 
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       }
     );
     
   } catch (error) {
     console.error('Error processing request:', error);
+    console.error('Error stack:', error.stack);
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
-        message: error.message
+        message: error.message,
+        stack: error.stack
       }),
       { 
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: corsHeaders
       }
     );
   }
