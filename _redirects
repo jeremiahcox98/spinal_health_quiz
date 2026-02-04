@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects
+# This ensures the HTML file is served correctly
+/spinal-health-quiz.html /spinal-health-quiz.html 200

@@ -38,10 +38,12 @@ git push -u origin main
 3. Click **Connect to Git**
 4. Select your GitHub account and repository
 5. Configure build settings:
-   - **Framework preset:** None
-   - **Build command:** (leave empty)
-   - **Build output directory:** (leave empty - we're serving the HTML directly)
+   - **Framework preset:** None (or "None")
+   - **Build command:** ⚠️ **MUST BE EMPTY** - Delete any command like `npx wrangler deploy`
+   - **Build output directory:** (leave empty)
    - **Root directory:** `/` (root of repo)
+   
+   **IMPORTANT:** If you see `npx wrangler deploy` in the build command, DELETE IT. Cloudflare Pages will automatically detect your `functions/` directory - no build command needed!
 
 ## Step 3: Set Environment Variables
 
