@@ -147,7 +147,7 @@ async function onRequestPost(context) {
       "Score Percentage": {
         "number": percentage
       },
-      "Severity Level": {
+      "Severity Level ": {
         "select": {
           "name": severity
         }
