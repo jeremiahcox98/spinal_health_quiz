@@ -39,14 +39,17 @@ git push -u origin main
 4. Select your GitHub account and repository
 5. Configure build settings:
    - **Framework preset:** None (or "None")
-   - **Build command:** If it won't let you leave it blank, use: `echo "No build needed"` or `true`
+   - **Build command:** `echo "No build needed"` (or `true`)
+   - **Deploy command:** ⚠️ **MUST BE EMPTY** - Delete `npx wrangler deploy` completely!
+     - If it won't let you leave it blank, use: `echo "Deploying"`
    - **Build output directory:** (leave empty)
    - **Root directory:** `/` (root of repo)
    
-   **IMPORTANT:** 
-   - Remove `npx wrangler deploy` if it's there
-   - If the field requires a value, use `echo "No build needed"` (this does nothing but satisfies the requirement)
-   - Cloudflare Pages will automatically detect your `functions/` directory - no actual build needed!
+   **CRITICAL:** 
+   - There are TWO separate fields: "Build command" and "Deploy command"
+   - The "Deploy command" field is what's causing the error - it has `npx wrangler deploy`
+   - Cloudflare Pages handles deployment automatically - you don't need a deploy command!
+   - Cloudflare Pages will automatically detect your `functions/` directory
 
 ## Step 3: Set Environment Variables
 

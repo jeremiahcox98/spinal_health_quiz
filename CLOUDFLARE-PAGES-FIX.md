@@ -11,14 +11,15 @@ Cloudflare Pages is trying to run `wrangler deploy` which is for Workers, not Pa
 
 4. Update the build settings to:
    - **Framework preset:** `None` (or leave empty)
-   - **Build command:** Use one of these options:
-     - `echo "No build needed"` (recommended - does nothing)
-     - `true` (also does nothing, just exits successfully)
-     - Leave empty if possible
+   - **Build command:** `echo "No build needed"` (or `true`)
+   - **Deploy command:** ⚠️ **MUST BE EMPTY OR REMOVED** - This is the problem!
+     - Delete `npx wrangler deploy` completely
+     - Leave it blank if possible
+     - If it won't let you leave it blank, use: `echo "Deploying"`
    - **Build output directory:** (leave empty)
    - **Root directory:** `/` (root of repository)
    
-   **Note:** The build command field might be separate from deploy command. If there's a separate "Deploy command" field, you can use the same minimal commands above.
+   **CRITICAL:** Cloudflare Pages handles deployment automatically. The "Deploy command" field should be empty. If you see `npx wrangler deploy` there, DELETE IT!
 
 5. **Save** the configuration
 
