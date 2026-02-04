@@ -168,7 +168,7 @@ async function onRequestPost(context) {
         "paragraph": {
           "rich_text": [
             { "type": "text", "text": { "content": "Score: " } },
-            { "type": "text", "text": { "content": `${totalScore} out of ${maxScore}`, "annotations": { "bold": true } } },
+            { "type": "text", "text": { "content": `${totalScore} out of ${maxScore}` }, "annotations": { "bold": true } },
             { "type": "text", "text": { "content": ` (${percentage}%)` } }
           ]
         }
@@ -179,7 +179,7 @@ async function onRequestPost(context) {
         "paragraph": {
           "rich_text": [
             { "type": "text", "text": { "content": "Severity Level: " } },
-            { "type": "text", "text": { "content": severity, "annotations": { "bold": true } } }
+            { "type": "text", "text": { "content": severity }, "annotations": { "bold": true } }
           ]
         }
       },
@@ -231,7 +231,7 @@ async function onRequestPost(context) {
         "bulleted_list_item": {
           "rich_text": [
             { "type": "text", "text": { "content": "Answer: " } },
-            { "type": "text", "text": { "content": qa.answer, "annotations": { "bold": true } } },
+            { "type": "text", "text": { "content": qa.answer }, "annotations": { "bold": true } },
             { "type": "text", "text": { "content": ` (Score: ${qa.score}/3)` } }
           ]
         }
