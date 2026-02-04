@@ -1,0 +1,13 @@
+# Cloudflare Pages Environment Variables
+# This is Cloudflare's equivalent of a .env file
+# 
+# To use:
+# 1. Copy this file to .dev.vars (without .example)
+# 2. Fill in your actual values below
+# 3. The .dev.vars file is already in .gitignore, so it won't be committed
+#
+# For local development: Use this .dev.vars file
+# For production: Set these in Cloudflare Pages dashboard → Settings → Environment Variables
+
+NOTION_API_TOKEN=ntn_your_token_here
+NOTION_DATABASE_ID=your_database_id_here
