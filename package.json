@@ -1,0 +1,9 @@
+{
+  "name": "spinal-health-quiz",
+  "version": "1.0.0",
+  "description": "Spinal Health Assessment Quiz with Notion Integration",
+  "private": true,
+  "scripts": {
+    "build": "echo 'No build step required for Cloudflare Pages'"
+  }
+}
