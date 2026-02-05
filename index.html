@@ -72,9 +72,10 @@
 
         .header {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             opacity: 0;
             animation: fadeInDown 0.8s ease forwards;
+            flex-shrink: 0;
         }
 
         @keyframes fadeInDown {
@@ -107,10 +108,11 @@
             height: 3px;
             background: var(--border);
             border-radius: 10px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             overflow: hidden;
             opacity: 0;
             animation: fadeIn 0.8s ease 0.2s forwards;
+            flex-shrink: 0;
         }
 
         @keyframes fadeIn {
@@ -140,7 +142,7 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
-            max-height: calc(100vh - 8rem);
+            max-height: calc(100vh - 6rem);
         }
 
         .quiz-card::before {
@@ -381,11 +383,17 @@
             display: none;
             text-align: center;
             opacity: 0;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0.5rem;
         }
 
         .results.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
             animation: scaleIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            min-height: 0;
         }
 
         @keyframes scaleIn {
@@ -400,14 +408,14 @@
         }
 
         .score-circle {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 2rem;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
+            font-size: 2.5rem;
             font-weight: 700;
             font-family: 'Playfair Display', serif;
             position: relative;
@@ -415,6 +423,7 @@
             box-shadow: 
                 0 20px 60px rgba(0, 0, 0, 0.1),
                 inset 0 2px 8px rgba(255, 255, 255, 0.8);
+            flex-shrink: 0;
         }
 
         .score-circle::before {
@@ -434,28 +443,30 @@
 
         .results h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             color: var(--primary);
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            flex-shrink: 0;
         }
 
         .results-description {
-            font-size: 1.2rem;
+            font-size: 0.95rem;
             color: var(--text-light);
-            line-height: 1.8;
-            margin-bottom: 2rem;
-            max-width: 600px;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            max-width: 100%;
             margin-left: auto;
             margin-right: auto;
         }
 
         .severity-badge {
             display: inline-block;
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1rem;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
         }
 
         .severity-low {
@@ -475,15 +486,17 @@
 
         .cta-button {
             display: inline-block;
-            padding: 1.25rem 3rem;
+            padding: 0.75rem 2rem;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             text-decoration: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             box-shadow: 0 8px 24px rgba(44, 95, 93, 0.3);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            margin-top: auto;
         }
 
         .cta-button:hover {
@@ -1083,11 +1096,11 @@
             }
 
             const resultsHTML = `
-                <div class="score-circle">${percentage}<span style="font-size: 2rem;">%</span></div>
+                <div class="score-circle">${percentage}<span style="font-size: 1.5rem;">%</span></div>
                 <div class="severity-badge ${severityClass}">${severity}</div>
                 <h2>${title}</h2>
                 <p class="results-description">${description}</p>
-                <p class="results-description" style="margin-bottom: 2.5rem;">${recommendation}</p>
+                <p class="results-description">${recommendation}</p>
                 <a href="#" class="cta-button">Schedule Your Free Consultation</a>
             `;
 
