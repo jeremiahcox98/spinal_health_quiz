@@ -22,12 +22,15 @@ export async function onRequestPost(context) {
   // Get environment variables
   const NOTION_API_TOKEN = env.NOTION_API_TOKEN;
   const NOTION_DATABASE_ID = env.NOTION_DATABASE_ID;
+  const GHL_LOCATION_ID = env.GHL_LOCATION_ID;
+  const GHL_API_KEY = env.GHL_API_KEY;
   
   // Log for debugging (remove in production if sensitive)
   console.log('Environment check:', {
-    hasToken: !!NOTION_API_TOKEN,
-    hasDbId: !!NOTION_DATABASE_ID,
-    dbIdLength: NOTION_DATABASE_ID?.length
+    hasNotionToken: !!NOTION_API_TOKEN,
+    hasNotionDbId: !!NOTION_DATABASE_ID,
+    hasGhlLocationId: !!GHL_LOCATION_ID,
+    hasGhlApiKey: !!GHL_API_KEY
   });
   
   // Validate environment variables
@@ -54,7 +57,7 @@ export async function onRequestPost(context) {
   try {
     // Parse request body
     const data = await request.json();
-    const { name, email, answers, questions } = data;
+    const { name, email, phone, answers, questions } = data;
     
     // Validate required data
     if (!name || !email || !answers || !questions) {
@@ -68,7 +71,7 @@ export async function onRequestPost(context) {
       );
     }
     
-    console.log('Processing submission for:', name, email);
+    console.log('Processing submission for:', name, email, phone || 'no phone');
     
     // Calculate results
     const totalScore = answers.reduce((sum, val) => sum + val, 0);
@@ -258,10 +261,71 @@ export async function onRequestPost(context) {
     const result = await notionResponse.json();
     console.log('Successfully created Notion page:', result.id);
     
+    // Submit to GoHighLevel (non-blocking - don't fail if this fails)
+    let ghlSuccess = false;
+    let ghlError = null;
+    
+    if (GHL_LOCATION_ID && GHL_API_KEY) {
+      try {
+        // Split name into first and last name
+        const nameParts = name.trim().split(' ');
+        const firstName = nameParts[0] || name;
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        // Prepare GHL contact data
+        const ghlContactData = {
+          locationId: GHL_LOCATION_ID,
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          tags: ['Spinal Health Quiz']
+        };
+        
+        // Add phone if provided
+        if (phone && phone.trim() !== '') {
+          // Clean phone number (remove non-digits, then format)
+          const cleanedPhone = phone.replace(/\D/g, '');
+          if (cleanedPhone.length >= 10) {
+            ghlContactData.phone = cleanedPhone;
+          }
+        }
+        
+        console.log('Submitting to GoHighLevel:', { locationId: GHL_LOCATION_ID, name, email, hasPhone: !!ghlContactData.phone });
+        
+        const ghlResponse = await fetch('https://services.leadconnectorhq.com/contacts/', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${GHL_API_KEY}`,
+            'Content-Type': 'application/json',
+            'Version': '2021-07-28'
+          },
+          body: JSON.stringify(ghlContactData)
+        });
+        
+        if (ghlResponse.ok) {
+          const ghlResult = await ghlResponse.json();
+          console.log('Successfully created GHL contact:', ghlResult.contact?.id);
+          ghlSuccess = true;
+        } else {
+          const ghlErrorData = await ghlResponse.json();
+          console.error('GoHighLevel API error:', ghlErrorData);
+          ghlError = ghlErrorData;
+        }
+      } catch (ghlErr) {
+        console.error('Error submitting to GoHighLevel:', ghlErr);
+        ghlError = ghlErr.message;
+        // Don't throw - continue even if GHL fails
+      }
+    } else {
+      console.log('GoHighLevel credentials not configured, skipping GHL submission');
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: true,
-        pageId: result.id
+        pageId: result.id,
+        ghlSuccess: ghlSuccess,
+        ghlError: ghlError
       }),
       { 
         status: 200,

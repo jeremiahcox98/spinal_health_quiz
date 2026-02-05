@@ -926,7 +926,7 @@
                     <h2>Almost There!</h2>
                     <p>Enter your information to receive your personalized spinal health assessment results</p>
                     <div class="email-input-group">
-                        <label for="nameInput">Full Name</label>
+                        <label for="nameInput">Full Name <span style="color: var(--text-light); font-weight: normal;">(required)</span></label>
                         <input 
                             type="text" 
                             id="nameInput" 
@@ -936,7 +936,7 @@
                         <div class="error-message" id="nameError">Please enter your name</div>
                     </div>
                     <div class="email-input-group">
-                        <label for="emailInput">Email Address</label>
+                        <label for="emailInput">Email Address <span style="color: var(--text-light); font-weight: normal;">(required)</span></label>
                         <input 
                             type="email" 
                             id="emailInput" 
@@ -944,6 +944,16 @@
                             autocomplete="email"
                         />
                         <div class="error-message" id="emailError">Please enter a valid email address</div>
+                    </div>
+                    <div class="email-input-group">
+                        <label for="phoneInput">Phone Number <span style="color: var(--text-light); font-weight: normal;">(optional)</span></label>
+                        <input 
+                            type="tel" 
+                            id="phoneInput" 
+                            placeholder="(555) 123-4567"
+                            autocomplete="tel"
+                        />
+                        <div class="error-message" id="phoneError">Please enter a valid phone number</div>
                     </div>
                     <div class="success-message" id="successMessage">✓ Results submitted successfully!</div>
                     <button class="btn btn-primary" id="submitEmailBtn" style="width: 100%;">
@@ -956,9 +966,11 @@
             
             const nameInput = document.getElementById('nameInput');
             const emailInput = document.getElementById('emailInput');
+            const phoneInput = document.getElementById('phoneInput');
             const submitBtn = document.getElementById('submitEmailBtn');
             const nameError = document.getElementById('nameError');
             const emailError = document.getElementById('emailError');
+            const phoneError = document.getElementById('phoneError');
             
             // Focus on name input
             setTimeout(() => nameInput.focus(), 100);
@@ -975,6 +987,12 @@
                 emailError.classList.remove('show');
             });
             
+            // Phone validation (optional)
+            phoneInput.addEventListener('input', () => {
+                phoneInput.classList.remove('error');
+                phoneError.classList.remove('show');
+            });
+            
             // Submit handler
             submitBtn.addEventListener('click', handleEmailSubmit);
             nameInput.addEventListener('keypress', (e) => {
@@ -983,6 +1001,11 @@
                 }
             });
             emailInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    phoneInput.focus();
+                }
+            });
+            phoneInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     handleEmailSubmit();
                 }
@@ -994,13 +1017,24 @@
             return re.test(email);
         }
 
+        function validatePhone(phone) {
+            if (!phone || phone.trim() === '') return true; // Optional field
+            // Remove all non-digit characters
+            const digits = phone.replace(/\D/g, '');
+            // Check if it has 10 or 11 digits (with or without country code)
+            return digits.length >= 10 && digits.length <= 11;
+        }
+
         async function handleEmailSubmit() {
             const nameInput = document.getElementById('nameInput');
             const emailInput = document.getElementById('emailInput');
+            const phoneInput = document.getElementById('phoneInput');
             const name = nameInput.value.trim();
             const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
             const nameError = document.getElementById('nameError');
             const emailError = document.getElementById('emailError');
+            const phoneError = document.getElementById('phoneError');
             const submitBtn = document.getElementById('submitEmailBtn');
             
             // Validate name
@@ -1017,6 +1051,14 @@
                 return;
             }
             
+            // Validate phone (optional but if provided, must be valid)
+            if (phone && !validatePhone(phone)) {
+                phoneInput.classList.add('error');
+                phoneError.textContent = 'Please enter a valid phone number';
+                phoneError.classList.add('show');
+                return;
+            }
+            
             userEmail = email;
             submitBtn.disabled = true;
             
@@ -1024,8 +1066,8 @@
             document.getElementById('loadingOverlay').classList.add('active');
             
             try {
-                // Submit to Notion
-                await submitToNotion(name, email);
+                // Submit to Notion and GoHighLevel
+                await submitToNotion(name, email, phone);
                 
                 // Show success message briefly
                 document.getElementById('successMessage').classList.add('show');
@@ -1054,11 +1096,11 @@
             }
         }
 
-        async function submitToNotion(name, email) {
+        async function submitToNotion(name, email, phone) {
             // Send quiz data to Cloudflare Pages Function
-            // The function will securely handle the Notion API call
+            // The function will securely handle the Notion API call and GoHighLevel integration
             console.log('Submitting to:', API_ENDPOINT);
-            console.log('Data:', { name, email, answers, questionsCount: questions.length });
+            console.log('Data:', { name, email, phone, answers, questionsCount: questions.length });
             
             const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
@@ -1068,6 +1110,7 @@
                 body: JSON.stringify({
                     name: name,
                     email: email,
+                    phone: phone || '', // Send empty string if not provided
                     answers: answers,
                     questions: questions
                 })
