@@ -291,31 +291,31 @@ export async function onRequestPost(context) {
           tags: ['Spinal Health Quiz'],
           customFields: [
             {
-              name: 'contact.totalscore',
+              id: 'contact.totalscore',
               value: totalScore.toString()
             },
             {
-              name: 'contact.maxscore',
+              id: 'contact.maxscore',
               value: maxScore.toString()
             },
             {
-              name: 'contact.scorepercentage',
+              id: 'contact.scorepercentage',
               value: percentage.toString()
             },
             {
-              name: 'contact.severitylevel',
+              id: 'contact.severitylevel',
               value: severity
             },
             {
-              name: 'contact.resultstitle',
+              id: 'contact.resultstitle',
               value: title
             },
             {
-              name: 'contact.resultsdescription',
+              id: 'contact.resultsdescription',
               value: description
             },
             {
-              name: 'contact.recommendation',
+              id: 'contact.recommendation',
               value: recommendation
             }
           ]
