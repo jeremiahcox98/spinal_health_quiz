@@ -1,33 +1,102 @@
 # Iframe Embed Code for Spinal Health Quiz
 
-## Simple Iframe Code (Recommended)
+## Responsive Iframe Code (Recommended)
 
-Copy and paste this HTML code into your website where you want the quiz to appear:
-
-```html
-<iframe 
-    src="https://spinal-health-quiz.pages.dev/" 
-    width="100%" 
-    height="700" 
-    frameborder="0"
-    title="Spinal Health Assessment Quiz"
-    allow="clipboard-read; clipboard-write"
-    loading="lazy"
-    style="border: none; overflow: hidden;"
-></iframe>
-```
-
-**Note:** The quiz is optimized to fit in 700px height with no scrolling. Adjust the height if needed for your layout.
-
-## Responsive Iframe (Recommended)
-
-For a responsive iframe that works on all devices, use this code with CSS:
+Copy and paste this HTML code into your website where you want the quiz to appear. This version is fully responsive and works great on mobile:
 
 ```html
-<div style="position: relative; padding-bottom: 125%; height: 0; overflow: hidden; max-width: 100%; background: #f5f5f5; border-radius: 12px;">
+<div style="position: relative; width: 100%; max-width: 100%; overflow: hidden;">
     <iframe 
         src="https://spinal-health-quiz.pages.dev/" 
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+        width="100%" 
+        height="560" 
+        frameborder="0"
+        title="Spinal Health Assessment Quiz"
+        allow="clipboard-read; clipboard-write"
+        loading="lazy"
+        style="border: none; overflow: hidden; width: 100%; height: 560px; min-height: 500px; max-height: 90vh;"
+    ></iframe>
+</div>
+```
+
+**Mobile-optimized version using viewport height:**
+
+```html
+<div style="position: relative; width: 100%; max-width: 100%; overflow: hidden;">
+    <iframe 
+        src="https://spinal-health-quiz.pages.dev/" 
+        width="100%" 
+        frameborder="0"
+        title="Spinal Health Assessment Quiz"
+        allow="clipboard-read; clipboard-write"
+        loading="lazy"
+        style="border: none; overflow: hidden; width: 100%; height: 90vh; min-height: 500px; max-height: 700px;"
+    ></iframe>
+</div>
+```
+
+**Note:** 
+- `90vh` = 90% of viewport height (responsive)
+- `min-height: 500px` = ensures minimum size on very small screens
+- `max-height: 700px` = prevents it from getting too tall on large screens
+
+## Responsive Iframe with CSS (Best for Mobile)
+
+For the best mobile experience, use this CSS-based responsive solution:
+
+```html
+<div style="position: relative; width: 100%; max-width: 100%; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+    <iframe 
+        src="https://spinal-health-quiz.pages.dev/" 
+        width="100%"
+        frameborder="0"
+        title="Spinal Health Assessment Quiz"
+        allow="clipboard-read; clipboard-write"
+        loading="lazy"
+        style="border: none; overflow: hidden; width: 100%; height: 90vh; min-height: 500px; max-height: 700px; display: block;"
+    ></iframe>
+</div>
+```
+
+**With media queries for better mobile control:**
+
+```html
+<style>
+.responsive-quiz-iframe {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.responsive-quiz-iframe iframe {
+    border: none;
+    width: 100%;
+    height: 90vh;
+    min-height: 500px;
+    max-height: 700px;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .responsive-quiz-iframe iframe {
+        height: 95vh;
+        min-height: 600px;
+    }
+}
+
+@media (max-width: 480px) {
+    .responsive-quiz-iframe iframe {
+        height: 100vh;
+        min-height: 560px;
+    }
+}
+</style>
+
+<div class="responsive-quiz-iframe">
+    <iframe 
+        src="https://spinal-health-quiz.pages.dev/" 
         title="Spinal Health Assessment Quiz"
         allow="clipboard-read; clipboard-write"
         loading="lazy"
