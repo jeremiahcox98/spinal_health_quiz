@@ -291,31 +291,31 @@ export async function onRequestPost(context) {
           tags: ['Spinal Health Quiz'],
           customFields: [
             {
-              name: 'TotalScore',
+              name: 'contact.totalscore',
               value: totalScore.toString()
             },
             {
-              name: 'MaxScore',
+              name: 'contact.maxscore',
               value: maxScore.toString()
             },
             {
-              name: 'ScorePercentage',
+              name: 'contact.scorepercentage',
               value: percentage.toString()
             },
             {
-              name: 'SeverityLevel',
+              name: 'contact.severitylevel',
               value: severity
             },
             {
-              name: 'ResultsTitle',
+              name: 'contact.resultstitle',
               value: title
             },
             {
-              name: 'ResultsDescription',
+              name: 'contact.resultsdescription',
               value: description
             },
             {
-              name: 'Recommendation',
+              name: 'contact.recommendation',
               value: recommendation
             }
           ]
@@ -344,7 +344,36 @@ export async function onRequestPost(context) {
         
         if (ghlResponse.ok) {
           const ghlResult = await ghlResponse.json();
-          console.log('Successfully created GHL contact:', ghlResult.contact?.id);
+          const contactId = ghlResult.contact?.id;
+          console.log('Successfully created GHL contact:', contactId);
+          
+          // Update contact with custom fields (sometimes they don't set on creation)
+          if (contactId) {
+            try {
+              const updateResponse = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
+                method: 'PUT',
+                headers: {
+                  'Authorization': `Bearer ${GHL_API_KEY}`,
+                  'Content-Type': 'application/json',
+                  'Version': '2021-07-28'
+                },
+                body: JSON.stringify({
+                  customFields: ghlContactData.customFields
+                })
+              });
+              
+              if (updateResponse.ok) {
+                console.log('Successfully updated GHL contact with custom fields');
+              } else {
+                const updateError = await updateResponse.text();
+                console.error('Error updating GHL custom fields:', updateError);
+              }
+            } catch (updateErr) {
+              console.error('Error updating GHL contact:', updateErr);
+              // Don't fail - contact was created successfully
+            }
+          }
+          
           ghlSuccess = true;
         } else {
           const errorText = await ghlResponse.text();
