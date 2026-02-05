@@ -78,19 +78,22 @@ export async function onRequestPost(context) {
     const maxScore = questions.length * 3;
     const percentage = Math.round((totalScore / maxScore) * 100);
     
-    let severity, description, title;
+    let severity, description, title, recommendation;
     if (percentage <= 25) {
       severity = "Excellent";
       title = "Great News!";
       description = "Your spinal health appears to be in excellent condition. You're experiencing minimal to no discomfort, which suggests good posture habits and spinal care. Continue maintaining your current lifestyle and preventive practices.";
+      recommendation = "Keep up your healthy habits and consider regular check-ups to maintain optimal spinal health.";
     } else if (percentage <= 50) {
       severity = "Moderate";
       title = "Time for Attention";
       description = "You're experiencing some spinal discomfort that warrants attention. While not severe, these symptoms suggest your spine could benefit from targeted care and lifestyle adjustments to prevent progression.";
+      recommendation = "We recommend consulting with a spinal health specialist to develop a personalized care plan.";
     } else {
       severity = "Significant";
       title = "Immediate Action Recommended";
       description = "Your responses indicate significant spinal health challenges that are affecting your daily life. These symptoms suggest you could greatly benefit from professional evaluation and comprehensive treatment.";
+      recommendation = "We strongly recommend scheduling a consultation with our spinal health experts as soon as possible.";
     }
     
     // Prepare quiz answers data
@@ -285,7 +288,37 @@ export async function onRequestPost(context) {
           firstName: firstName,
           lastName: lastName,
           email: email,
-          tags: ['Spinal Health Quiz']
+          tags: ['Spinal Health Quiz'],
+          customFields: [
+            {
+              name: 'TotalScore',
+              value: totalScore.toString()
+            },
+            {
+              name: 'MaxScore',
+              value: maxScore.toString()
+            },
+            {
+              name: 'ScorePercentage',
+              value: percentage.toString()
+            },
+            {
+              name: 'SeverityLevel',
+              value: severity
+            },
+            {
+              name: 'ResultsTitle',
+              value: title
+            },
+            {
+              name: 'ResultsDescription',
+              value: description
+            },
+            {
+              name: 'Recommendation',
+              value: recommendation
+            }
+          ]
         };
         
         // Add phone if provided
