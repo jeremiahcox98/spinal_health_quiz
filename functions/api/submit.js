@@ -291,31 +291,31 @@ export async function onRequestPost(context) {
           tags: ['Spinal Health Quiz'],
           customFields: [
             {
-              id: 'contact.totalscore',
+              id: '5C1LiDpH7ukNFMRYzEp8', // TotalScore
               value: totalScore.toString()
             },
             {
-              id: 'contact.maxscore',
+              id: 'G8s1sZhDPwL6OIZubr9f', // MaxScore
               value: maxScore.toString()
             },
             {
-              id: 'contact.scorepercentage',
+              id: 'HKP0m08jIERA624KbeBI', // ScorePercentage
               value: percentage.toString()
             },
             {
-              id: 'contact.severitylevel',
+              id: 'gamDVLAjwCgmGQe6zPTb', // SeverityLevel
               value: severity
             },
             {
-              id: 'contact.resultstitle',
+              id: 'tFdAzTE1i8HPa5ssKHpW', // ResultsTitle
               value: title
             },
             {
-              id: 'contact.resultsdescription',
+              id: 'uMPWPn8TREDnnzPz4f0l', // ResultsDescription
               value: description
             },
             {
-              id: 'contact.recommendation',
+              id: 'xdYFYIurcBJ54B9MoD73', // Recommendation
               value: recommendation
             }
           ]
