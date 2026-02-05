@@ -987,10 +987,34 @@
                 emailError.classList.remove('show');
             });
             
-            // Phone validation (optional)
-            phoneInput.addEventListener('input', () => {
+            // Phone formatting and validation (optional)
+            phoneInput.addEventListener('input', (e) => {
                 phoneInput.classList.remove('error');
                 phoneError.classList.remove('show');
+                
+                // Format phone number as user types
+                let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+                
+                // Format: (XXX) XXX-XXXX
+                if (value.length > 0) {
+                    if (value.length <= 3) {
+                        value = `(${value}`;
+                    } else if (value.length <= 6) {
+                        value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                    } else {
+                        value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                    }
+                }
+                
+                e.target.value = value;
+            });
+            
+            // Handle backspace to allow deletion
+            phoneInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value.length === 5) {
+                    // If deleting the closing paren, remove the opening paren too
+                    e.target.value = e.target.value.slice(1, -1);
+                }
             });
             
             // Submit handler
@@ -1021,8 +1045,8 @@
             if (!phone || phone.trim() === '') return true; // Optional field
             // Remove all non-digit characters
             const digits = phone.replace(/\D/g, '');
-            // Check if it has 10 or 11 digits (with or without country code)
-            return digits.length >= 10 && digits.length <= 11;
+            // Check if it has exactly 10 digits (US phone number)
+            return digits.length === 10;
         }
 
         async function handleEmailSubmit() {
@@ -1054,7 +1078,7 @@
             // Validate phone (optional but if provided, must be valid)
             if (phone && !validatePhone(phone)) {
                 phoneInput.classList.add('error');
-                phoneError.textContent = 'Please enter a valid phone number';
+                phoneError.textContent = 'Please enter a valid 10-digit phone number';
                 phoneError.classList.add('show');
                 return;
             }
