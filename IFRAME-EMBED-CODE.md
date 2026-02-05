@@ -1,6 +1,6 @@
 # Iframe Embed Code for Spinal Health Quiz
 
-## Simple Iframe Code
+## Simple Iframe Code (Recommended)
 
 Copy and paste this HTML code into your website where you want the quiz to appear:
 
@@ -8,13 +8,16 @@ Copy and paste this HTML code into your website where you want the quiz to appea
 <iframe 
     src="https://spinal-health-quiz.pages.dev/" 
     width="100%" 
-    height="800" 
+    height="700" 
     frameborder="0"
     title="Spinal Health Assessment Quiz"
     allow="clipboard-read; clipboard-write"
     loading="lazy"
+    style="border: none; overflow: hidden;"
 ></iframe>
 ```
+
+**Note:** The quiz is optimized to fit in 700px height with no scrolling. Adjust the height if needed for your layout.
 
 ## Responsive Iframe (Recommended)
 
