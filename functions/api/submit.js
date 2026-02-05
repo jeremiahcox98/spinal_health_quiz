@@ -265,6 +265,13 @@ export async function onRequestPost(context) {
     let ghlSuccess = false;
     let ghlError = null;
     
+    console.log('GHL Check:', {
+      hasLocationId: !!GHL_LOCATION_ID,
+      hasApiKey: !!GHL_API_KEY,
+      locationIdValue: GHL_LOCATION_ID ? '***' : 'missing',
+      apiKeyValue: GHL_API_KEY ? '***' : 'missing'
+    });
+    
     if (GHL_LOCATION_ID && GHL_API_KEY) {
       try {
         // Split name into first and last name
@@ -307,17 +314,31 @@ export async function onRequestPost(context) {
           console.log('Successfully created GHL contact:', ghlResult.contact?.id);
           ghlSuccess = true;
         } else {
-          const ghlErrorData = await ghlResponse.json();
-          console.error('GoHighLevel API error:', ghlErrorData);
-          ghlError = ghlErrorData;
+          const errorText = await ghlResponse.text();
+          let ghlErrorData;
+          try {
+            ghlErrorData = JSON.parse(errorText);
+          } catch (e) {
+            ghlErrorData = { message: errorText, status: ghlResponse.status };
+          }
+          console.error('GoHighLevel API error:', {
+            status: ghlResponse.status,
+            statusText: ghlResponse.statusText,
+            error: ghlErrorData
+          });
+          ghlError = ghlErrorData.message || ghlErrorData.error || `HTTP ${ghlResponse.status}`;
         }
       } catch (ghlErr) {
-        console.error('Error submitting to GoHighLevel:', ghlErr);
+        console.error('Error submitting to GoHighLevel:', {
+          message: ghlErr.message,
+          stack: ghlErr.stack
+        });
         ghlError = ghlErr.message;
         // Don't throw - continue even if GHL fails
       }
     } else {
       console.log('GoHighLevel credentials not configured, skipping GHL submission');
+      ghlError = 'GHL credentials not found in environment variables';
     }
     
     return new Response(
