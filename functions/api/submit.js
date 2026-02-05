@@ -295,27 +295,27 @@ export async function onRequestPost(context) {
               value: totalScore.toString()
             },
             {
-              id: 'G8s1sZhDPwL6OIZubr9f', // MaxScore
+              id: 'uMPWPn8TREDnnzPz4f0l', // MaxScore
               value: maxScore.toString()
             },
             {
-              id: 'HKP0m08jIERA624KbeBI', // ScorePercentage
+              id: 'G8s1sZhDPwL6OIZubr9f', // ScorePercentage
               value: percentage.toString()
             },
             {
-              id: 'gamDVLAjwCgmGQe6zPTb', // SeverityLevel
+              id: 'tFdAzTE1i8HPa5ssKHpW', // SeverityLevel
               value: severity
             },
             {
-              id: 'tFdAzTE1i8HPa5ssKHpW', // ResultsTitle
+              id: 'xdYFYIurcBJ54B9MoD73', // ResultsTitle
               value: title
             },
             {
-              id: 'uMPWPn8TREDnnzPz4f0l', // ResultsDescription
+              id: 'gamDVLAjwCgmGQe6zPTb', // ResultsDescription
               value: description
             },
             {
-              id: 'xdYFYIurcBJ54B9MoD73', // Recommendation
+              id: 'HKP0m08jIERA624KbeBI', // Recommendation
               value: recommendation
             }
           ]
