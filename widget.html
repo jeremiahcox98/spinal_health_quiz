@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Namespaced CSS - all classes prefixed with shq- to prevent conflicts */
+        .shq-widget-wrapper {
+            --shq-primary: #2C5F5D;
+            --shq-primary-dark: #1a3938;
+            --shq-accent: #D4A574;
+            --shq-bg: #F4F1ED;
+            --shq-card-bg: #FFFFFF;
+            --shq-text: #2A2A2A;
+            --shq-text-light: #6B6B6B;
+            --shq-border: #E8E6E1;
+            --shq-success: #4A7C59;
+            --shq-warning: #D4A574;
+            --shq-danger: #C74C4C;
+            font-family: 'Outfit', sans-serif;
+            background: var(--shq-bg);
+            color: var(--shq-text);
+            padding: 1rem;
+            max-width: 720px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .shq-widget-wrapper * {
+            box-sizing: border-box;
+        }
+
+        .shq-container {
+            width: 100%;
+            position: relative;
+        }
+
+        .shq-header {
+            text-align: center;
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            animation: shq-fadeInDown 0.8s ease forwards;
+        }
+
+        @keyframes shq-fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shq-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--shq-primary);
+            margin-bottom: 0.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .shq-header p {
+            color: var(--shq-text-light);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        .shq-progress-bar {
+            height: 3px;
+            background: var(--shq-border);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            opacity: 0;
+            animation: shq-fadeIn 0.8s ease 0.2s forwards;
+        }
+
+        @keyframes shq-fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .shq-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--shq-primary) 0%, var(--shq-accent) 100%);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+        }
+
+        .shq-quiz-card {
+            background: var(--shq-card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--shq-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shq-quiz-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--shq-primary) 0%, var(--shq-accent) 100%);
+        }
+
+        .shq-question-container {
+            position: relative;
+            min-height: 200px;
+            overflow: hidden;
+        }
+
+        .shq-question {
+            opacity: 0;
+            transform: translateX(100px);
+            position: absolute;
+            width: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .shq-question.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+            pointer-events: auto;
+            animation: shq-slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .shq-question.exit {
+            animation: shq-slideOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes shq-slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes shq-slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+        }
+
+        .shq-question-number {
+            font-size: 0.75rem;
+            color: var(--shq-accent);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .shq-question-text {
+            font-size: 1.3rem;
+            color: var(--shq-text);
+            margin-bottom: 1.25rem;
+            font-weight: 500;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .shq-answers {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .shq-answer {
+            background: var(--shq-bg);
+            border: 2px solid var(--shq-border);
+            border-radius: 12px;
+            padding: 0.875rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            min-width: 0;
+        }
+
+        .shq-answer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--shq-accent);
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: bottom;
+        }
+
+        .shq-question.active .shq-answer {
+            animation: shq-fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .shq-question.active .shq-answer:nth-child(1) { animation-delay: 0.1s; }
+        .shq-question.active .shq-answer:nth-child(2) { animation-delay: 0.15s; }
+        .shq-question.active .shq-answer:nth-child(3) { animation-delay: 0.2s; }
+        .shq-question.active .shq-answer:nth-child(4) { animation-delay: 0.25s; }
+
+        @keyframes shq-fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shq-answer:hover {
+            transform: translateX(8px);
+            border-color: var(--shq-accent);
+            background: #FFFFFF;
+            box-shadow: 0 8px 24px rgba(44, 95, 93, 0.12);
+        }
+
+        .shq-answer:hover::before {
+            transform: scaleY(1);
+            transform-origin: top;
+        }
+
+        .shq-answer.selected {
+            border-color: var(--shq-primary);
+            background: linear-gradient(135deg, rgba(44, 95, 93, 0.05) 0%, rgba(212, 165, 116, 0.05) 100%);
+            transform: translateX(8px);
+        }
+
+        .shq-answer.selected::before {
+            transform: scaleY(1);
+            background: var(--shq-primary);
+        }
+
+        .shq-answer-text {
+            font-size: 0.95rem;
+            color: var(--shq-text);
+            font-weight: 400;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .shq-navigation {
+            margin-top: 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: space-between;
+        }
+
+        .shq-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Outfit', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shq-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .shq-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .shq-btn-secondary {
+            background: transparent;
+            color: var(--shq-text-light);
+            border: 2px solid var(--shq-border);
+        }
+
+        .shq-btn-secondary:hover {
+            border-color: var(--shq-primary);
+            color: var(--shq-primary);
+            transform: translateY(-2px);
+        }
+
+        .shq-btn-primary {
+            background: linear-gradient(135deg, var(--shq-primary) 0%, var(--shq-primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(44, 95, 93, 0.2);
+        }
+
+        .shq-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(44, 95, 93, 0.3);
+        }
+
+        .shq-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .shq-results {
+            display: none;
+            text-align: center;
+            opacity: 0;
+            padding: 0.5rem;
+        }
+
+        .shq-results.active {
+            display: block;
+            animation: shq-scaleIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes shq-scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .shq-score-circle {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 0.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            position: relative;
+            background: linear-gradient(135deg, var(--shq-bg) 0%, #FFFFFF 100%);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.1),
+                inset 0 2px 8px rgba(255, 255, 255, 0.8);
+        }
+
+        .shq-score-circle::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--shq-primary) 0%, var(--shq-accent) 100%);
+            z-index: -1;
+            animation: shq-rotate 3s linear infinite;
+        }
+
+        @keyframes shq-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .shq-results h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            color: var(--shq-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .shq-results-description {
+            font-size: 0.85rem;
+            color: var(--shq-text-light);
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .shq-severity-badge {
+            display: inline-block;
+            padding: 0.4rem 0.875rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .shq-severity-low {
+            background: rgba(74, 124, 89, 0.1);
+            color: var(--shq-success);
+        }
+
+        .shq-severity-moderate {
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--shq-warning);
+        }
+
+        .shq-severity-high {
+            background: rgba(199, 76, 76, 0.1);
+            color: var(--shq-danger);
+        }
+
+        .shq-cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .shq-cta-button {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--shq-primary) 0%, var(--shq-primary-dark) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 8px 24px rgba(44, 95, 93, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .shq-cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(44, 95, 93, 0.4);
+        }
+
+        .shq-cta-button-secondary {
+            background: transparent;
+            border: 2px solid var(--shq-primary);
+            color: var(--shq-primary);
+            box-shadow: none;
+            padding: 0.65rem 2rem;
+            font-size: 0.85rem;
+        }
+
+        .shq-cta-button-secondary:hover {
+            background: rgba(44, 95, 93, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 95, 93, 0.15);
+        }
+
+        .shq-email-form {
+            display: none;
+            opacity: 0;
+        }
+
+        .shq-email-form.active {
+            display: block;
+            animation: shq-scaleIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .shq-email-form-container {
+            text-align: center;
+        }
+
+        .shq-email-form h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--shq-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .shq-email-form p {
+            color: var(--shq-text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .shq-email-input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .shq-email-input-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--shq-text);
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+        }
+
+        .shq-email-input-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--shq-border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--shq-bg);
+        }
+
+        .shq-email-input-group input:focus {
+            outline: none;
+            border-color: var(--shq-primary);
+            background: white;
+            box-shadow: 0 4px 16px rgba(44, 95, 93, 0.1);
+        }
+
+        .shq-email-input-group input.error {
+            border-color: var(--shq-danger);
+        }
+
+        .shq-error-message {
+            color: var(--shq-danger);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .shq-error-message.show {
+            display: block;
+        }
+
+        .shq-loading-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            flex-direction: column;
+        }
+
+        .shq-loading-overlay.active {
+            display: flex;
+            animation: shq-fadeIn 0.3s ease forwards;
+        }
+
+        .shq-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--shq-border);
+            border-top-color: var(--shq-primary);
+            border-radius: 50%;
+            animation: shq-spin 0.8s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes shq-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .shq-loading-text {
+            color: var(--shq-text);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .shq-success-message {
+            display: none;
+            padding: 1rem;
+            background: rgba(74, 124, 89, 0.1);
+            border: 2px solid var(--shq-success);
+            border-radius: 12px;
+            color: var(--shq-success);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .shq-success-message.show {
+            display: block;
+            animation: shq-fadeIn 0.5s ease forwards;
+        }
+
+        @media (max-width: 640px) {
+            .shq-widget-wrapper {
+                padding: 0.5rem;
+            }
+
+            .shq-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .shq-header p {
+                font-size: 0.8rem;
+            }
+
+            .shq-quiz-card {
+                padding: 1rem;
+            }
+
+            .shq-question-text {
+                font-size: 1.1rem;
+            }
+
+            .shq-answer {
+                padding: 0.75rem 1rem;
+            }
+
+            .shq-answer-text {
+                font-size: 0.85rem;
+            }
+
+            .shq-score-circle {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .shq-results h2 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shq-container">
+        <div class="shq-header">
+            <h1>Spinal Health Assessment</h1>
+            <p>Discover your spinal health status in 10 questions</p>
+        </div>
+
+        <div class="shq-progress-bar">
+            <div class="shq-progress-fill" id="shq-progressFill"></div>
+        </div>
+
+        <div class="shq-quiz-card">
+            <div class="shq-loading-overlay" id="shq-loadingOverlay">
+                <div class="shq-spinner"></div>
+                <div class="shq-loading-text">Submitting your results...</div>
+            </div>
+            <div id="shq-quizContainer" class="shq-question-container"></div>
+            <div id="shq-emailForm" class="shq-email-form"></div>
+            <div id="shq-resultsContainer" class="shq-results"></div>
+        </div>
+    </div>
+
+    <script>
+        // API endpoint - uses full Cloudflare URL for cross-origin requests
+        const SHQ_API_ENDPOINT = 'https://spinal-health-quiz.pages.dev/api/submit';
+
+        const shqQuestions = [
+            {
+                question: "How often do you experience back pain?",
+                answers: [
+                    { text: "Rarely or never", value: 0 },
+                    { text: "Occasionally, a few times a month", value: 1 },
+                    { text: "At least once a week", value: 2 },
+                    { text: "Daily or almost daily", value: 3 }
+                ]
+            },
+            {
+                question: "Do you feel numbness, tingling, or weakness in arms or legs?",
+                answers: [
+                    { text: "No, never", value: 0 },
+                    { text: "Rarely", value: 1 },
+                    { text: "Occasionally", value: 2 },
+                    { text: "Frequently or constantly", value: 3 }
+                ]
+            },
+            {
+                question: "How does sitting for long periods affect your pain?",
+                answers: [
+                    { text: "No pain, I can sit comfortably", value: 0 },
+                    { text: "Mild discomfort after sitting for an hour or more", value: 1 },
+                    { text: "Pain increases significantly after 30 minutes", value: 2 },
+                    { text: "I can't sit for long due to intense pain", value: 3 }
+                ]
+            },
+            {
+                question: "Have you been diagnosed with a herniated disc, sciatica, or degenerative disc disease?",
+                answers: [
+                    { text: "No", value: 0 },
+                    { text: "Unsure", value: 1 },
+                    { text: "Yes, but it's mild", value: 2 },
+                    { text: "Yes, and it significantly affects my life", value: 3 }
+                ]
+            },
+            {
+                question: "Do you experience stiffness or loss of flexibility in your back?",
+                answers: [
+                    { text: "No stiffness, full range of motion", value: 0 },
+                    { text: "Slight stiffness in the morning or after activity", value: 1 },
+                    { text: "Noticeable stiffness that affects movement", value: 2 },
+                    { text: "Severe stiffness or reduced mobility", value: 3 }
+                ]
+            },
+            {
+                question: "How often do you feel sharp pain in your back or legs?",
+                answers: [
+                    { text: "Never", value: 0 },
+                    { text: "Occasionally", value: 1 },
+                    { text: "Frequently", value: 2 },
+                    { text: "Constantly", value: 3 }
+                ]
+            },
+            {
+                question: "Have you tried other treatments for your back pain?",
+                answers: [
+                    { text: "No, I haven't needed any", value: 0 },
+                    { text: "Yes, and they provided relief", value: 1 },
+                    { text: "Yes, but relief was temporary", value: 2 },
+                    { text: "Yes, but nothing has helped", value: 3 }
+                ]
+            },
+            {
+                question: "How does standing or walking for long periods affect your back?",
+                answers: [
+                    { text: "No effect, I feel fine", value: 0 },
+                    { text: "Slight discomfort after a long time", value: 1 },
+                    { text: "Pain starts after a short period", value: 2 },
+                    { text: "I avoid standing or walking due to pain", value: 3 }
+                ]
+            },
+            {
+                question: "Do you feel pain when bending forward, lifting objects, or twisting?",
+                answers: [
+                    { text: "No pain", value: 0 },
+                    { text: "Mild pain sometimes", value: 1 },
+                    { text: "Significant pain during these movements", value: 2 },
+                    { text: "Extreme pain, or I completely avoid these movements", value: 3 }
+                ]
+            },
+            {
+                question: "Have you noticed your posture getting worse over time?",
+                answers: [
+                    { text: "No, my posture is fine", value: 0 },
+                    { text: "Slight slouching but no pain", value: 1 },
+                    { text: "Noticeable posture issues and discomfort", value: 2 },
+                    { text: "Severe posture problems affecting daily life", value: 3 }
+                ]
+            }
+        ];
+
+        let shqCurrentQuestion = 0;
+        let shqAnswers = [];
+        let shqUserEmail = '';
+
+        function shqRenderQuestion(index) {
+            const container = document.getElementById('shq-quizContainer');
+            const q = shqQuestions[index];
+            
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'shq-question';
+            questionDiv.innerHTML = `
+                <div class="shq-question-number">Question ${index + 1} of ${shqQuestions.length}</div>
+                <h2 class="shq-question-text">${q.question}</h2>
+                <div class="shq-answers">
+                    ${q.answers.map((answer, i) => `
+                        <div class="shq-answer" data-value="${answer.value}">
+                            <div class="shq-answer-text">${answer.text}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="shq-navigation">
+                    <button class="shq-btn shq-btn-secondary" id="shq-prevBtn" ${index === 0 ? 'style="visibility: hidden"' : ''}>
+                        Previous
+                    </button>
+                    <button class="shq-btn shq-btn-primary" id="shq-nextBtn" disabled>
+                        ${index === shqQuestions.length - 1 ? 'See Results' : 'Next Question'}
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(questionDiv);
+            
+            setTimeout(() => {
+                questionDiv.classList.add('active');
+            }, 10);
+
+            // Add click handlers
+            const answerElements = questionDiv.querySelectorAll('.shq-answer');
+            answerElements.forEach(answer => {
+                answer.addEventListener('click', () => {
+                    answerElements.forEach(a => a.classList.remove('selected'));
+                    answer.classList.add('selected');
+                    shqAnswers[index] = parseInt(answer.dataset.value);
+                    document.getElementById('shq-nextBtn').disabled = false;
+                });
+            });
+
+            // Restore previous answer if exists
+            if (shqAnswers[index] !== undefined) {
+                const selectedAnswer = questionDiv.querySelector(`[data-value="${shqAnswers[index]}"]`);
+                if (selectedAnswer) {
+                    selectedAnswer.classList.add('selected');
+                    document.getElementById('shq-nextBtn').disabled = false;
+                }
+            }
+
+            document.getElementById('shq-nextBtn').addEventListener('click', shqNextQuestion);
+            if (index > 0) {
+                document.getElementById('shq-prevBtn').addEventListener('click', shqPreviousQuestion);
+            }
+
+            shqUpdateProgress();
+        }
+
+        function shqNextQuestion() {
+            const currentQuestionDiv = document.querySelector('.shq-question.active');
+            currentQuestionDiv.classList.remove('active');
+            currentQuestionDiv.classList.add('exit');
+
+            setTimeout(() => {
+                currentQuestionDiv.remove();
+                shqCurrentQuestion++;
+                
+                if (shqCurrentQuestion < shqQuestions.length) {
+                    shqRenderQuestion(shqCurrentQuestion);
+                } else {
+                    shqShowEmailForm();
+                }
+            }, 500);
+        }
+
+        function shqPreviousQuestion() {
+            const currentQuestionDiv = document.querySelector('.shq-question.active');
+            currentQuestionDiv.classList.remove('active');
+            currentQuestionDiv.classList.add('exit');
+
+            setTimeout(() => {
+                currentQuestionDiv.remove();
+                shqCurrentQuestion--;
+                shqRenderQuestion(shqCurrentQuestion);
+            }, 500);
+        }
+
+        function shqUpdateProgress() {
+            const progress = ((shqCurrentQuestion + 1) / shqQuestions.length) * 100;
+            document.getElementById('shq-progressFill').style.width = progress + '%';
+        }
+
+        function shqShowEmailForm() {
+            document.getElementById('shq-quizContainer').style.display = 'none';
+            
+            const emailForm = document.getElementById('shq-emailForm');
+            emailForm.innerHTML = `
+                <div class="shq-email-form-container">
+                    <h2>Almost There!</h2>
+                    <p>Enter your information to receive your personalized spinal health assessment results</p>
+                    <div class="shq-email-input-group">
+                        <label for="shq-nameInput">Full Name <span style="color: var(--shq-text-light); font-weight: normal;">(required)</span></label>
+                        <input 
+                            type="text" 
+                            id="shq-nameInput" 
+                            placeholder="John Doe"
+                            autocomplete="name"
+                        />
+                        <div class="shq-error-message" id="shq-nameError">Please enter your name</div>
+                    </div>
+                    <div class="shq-email-input-group">
+                        <label for="shq-emailInput">Email Address <span style="color: var(--shq-text-light); font-weight: normal;">(required)</span></label>
+                        <input 
+                            type="email" 
+                            id="shq-emailInput" 
+                            placeholder="your.email@example.com"
+                            autocomplete="email"
+                        />
+                        <div class="shq-error-message" id="shq-emailError">Please enter a valid email address</div>
+                    </div>
+                    <div class="shq-email-input-group">
+                        <label for="shq-phoneInput">Phone Number <span style="color: var(--shq-text-light); font-weight: normal;">(optional)</span></label>
+                        <input 
+                            type="tel" 
+                            id="shq-phoneInput" 
+                            placeholder="(555) 123-4567"
+                            autocomplete="tel"
+                        />
+                        <div class="shq-error-message" id="shq-phoneError">Please enter a valid phone number</div>
+                    </div>
+                    <div class="shq-success-message" id="shq-successMessage">✓ Results submitted successfully!</div>
+                    <button class="shq-btn shq-btn-primary" id="shq-submitEmailBtn" style="width: 100%;">
+                        Get My Results
+                    </button>
+                </div>
+            `;
+            
+            emailForm.classList.add('active');
+            
+            const nameInput = document.getElementById('shq-nameInput');
+            const emailInput = document.getElementById('shq-emailInput');
+            const phoneInput = document.getElementById('shq-phoneInput');
+            const submitBtn = document.getElementById('shq-submitEmailBtn');
+            const nameError = document.getElementById('shq-nameError');
+            const emailError = document.getElementById('shq-emailError');
+            const phoneError = document.getElementById('shq-phoneError');
+            
+            setTimeout(() => nameInput.focus(), 100);
+            
+            nameInput.addEventListener('input', () => {
+                nameInput.classList.remove('error');
+                nameError.classList.remove('show');
+            });
+            
+            emailInput.addEventListener('input', () => {
+                emailInput.classList.remove('error');
+                emailError.classList.remove('show');
+            });
+            
+            phoneInput.addEventListener('input', (e) => {
+                phoneInput.classList.remove('error');
+                phoneError.classList.remove('show');
+                
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length > 0) {
+                    if (value.length <= 3) {
+                        value = `(${value}`;
+                    } else if (value.length <= 6) {
+                        value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                    } else {
+                        value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                    }
+                }
+                
+                e.target.value = value;
+            });
+            
+            phoneInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value.length === 5) {
+                    e.target.value = e.target.value.slice(1, -1);
+                }
+            });
+            
+            submitBtn.addEventListener('click', shqHandleEmailSubmit);
+            nameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') emailInput.focus();
+            });
+            emailInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') phoneInput.focus();
+            });
+            phoneInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') shqHandleEmailSubmit();
+            });
+        }
+
+        function shqValidateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function shqValidatePhone(phone) {
+            if (!phone || phone.trim() === '') return true;
+            const digits = phone.replace(/\D/g, '');
+            return digits.length === 10;
+        }
+
+        async function shqHandleEmailSubmit() {
+            const nameInput = document.getElementById('shq-nameInput');
+            const emailInput = document.getElementById('shq-emailInput');
+            const phoneInput = document.getElementById('shq-phoneInput');
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const nameError = document.getElementById('shq-nameError');
+            const emailError = document.getElementById('shq-emailError');
+            const phoneError = document.getElementById('shq-phoneError');
+            const submitBtn = document.getElementById('shq-submitEmailBtn');
+            
+            if (!name || name.length < 2) {
+                nameInput.classList.add('error');
+                nameError.classList.add('show');
+                return;
+            }
+            
+            if (!email || !shqValidateEmail(email)) {
+                emailInput.classList.add('error');
+                emailError.classList.add('show');
+                return;
+            }
+            
+            if (phone && !shqValidatePhone(phone)) {
+                phoneInput.classList.add('error');
+                phoneError.textContent = 'Please enter a valid 10-digit phone number';
+                phoneError.classList.add('show');
+                return;
+            }
+            
+            shqUserEmail = email;
+            submitBtn.disabled = true;
+            
+            document.getElementById('shq-loadingOverlay').classList.add('active');
+            
+            try {
+                await shqSubmitToNotion(name, email, phone);
+                
+                document.getElementById('shq-successMessage').classList.add('show');
+                
+                setTimeout(() => {
+                    document.getElementById('shq-loadingOverlay').classList.remove('active');
+                    document.getElementById('shq-emailForm').classList.remove('active');
+                    shqShowResults();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error submitting to Notion:', error);
+                const errorMsg = document.getElementById('shq-emailError');
+                errorMsg.textContent = `Submission failed: ${error.message}. Results will still be shown.`;
+                errorMsg.classList.add('show');
+                errorMsg.style.color = 'var(--shq-danger)';
+                
+                setTimeout(() => {
+                    document.getElementById('shq-loadingOverlay').classList.remove('active');
+                    document.getElementById('shq-emailForm').classList.remove('active');
+                    shqShowResults();
+                }, 2000);
+            }
+        }
+
+        async function shqSubmitToNotion(name, email, phone) {
+            console.log('Submitting to:', SHQ_API_ENDPOINT);
+            console.log('Data:', { name, email, phone, answers: shqAnswers, questionsCount: shqQuestions.length });
+            
+            const response = await fetch(SHQ_API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone || '',
+                    answers: shqAnswers,
+                    questions: shqQuestions
+                })
+            });
+            
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                let errorMessage = 'Unknown error';
+                try {
+                    const errorData = await response.json();
+                    console.error('Error response:', errorData);
+                    errorMessage = errorData.error || errorData.message || JSON.stringify(errorData);
+                } catch (e) {
+                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                }
+                throw new Error(errorMessage);
+            }
+            
+            const result = await response.json();
+            console.log('Success:', result);
+            return result;
+        }
+
+        function shqShowResults() {
+            const totalScore = shqAnswers.reduce((sum, val) => sum + val, 0);
+            const maxScore = shqQuestions.length * 3;
+            const percentage = Math.round((totalScore / maxScore) * 100);
+
+            let severity, severityClass, title, description, recommendation;
+
+            if (percentage <= 25) {
+                severity = "Excellent Spinal Health";
+                severityClass = "shq-severity-low";
+                title = "Great News!";
+                description = "Your spinal health appears to be in excellent condition. You're experiencing minimal to no discomfort, which suggests good posture habits and spinal care. Continue maintaining your current lifestyle and preventive practices.";
+                recommendation = "Keep up your healthy habits and consider regular check-ups to maintain optimal spinal health.";
+            } else if (percentage <= 50) {
+                severity = "Moderate Concerns";
+                severityClass = "shq-severity-moderate";
+                title = "Time for Attention";
+                description = "You're experiencing some spinal discomfort that warrants attention. While not severe, these symptoms suggest your spine could benefit from targeted care and lifestyle adjustments to prevent progression.";
+                recommendation = "We recommend consulting with a spinal health specialist to develop a personalized care plan.";
+            } else {
+                severity = "Significant Concerns";
+                severityClass = "shq-severity-high";
+                title = "Immediate Action Recommended";
+                description = "Your responses indicate significant spinal health challenges that are affecting your daily life. These symptoms suggest you could greatly benefit from professional evaluation and comprehensive treatment.";
+                recommendation = "We strongly recommend scheduling a consultation with our spinal health experts as soon as possible.";
+            }
+
+            const resultsHTML = `
+                <div class="shq-score-circle">${percentage}<span style="font-size: 1.25rem;">%</span></div>
+                <div class="shq-severity-badge ${severityClass}">${severity}</div>
+                <h2>${title}</h2>
+                <p class="shq-results-description">${description}</p>
+                <p class="shq-results-description">${recommendation}</p>
+                <div class="shq-cta-buttons">
+                    <a href="https://drjeremiahcox.com/book" target="_blank" class="shq-cta-button">Book Appointment</a>
+                    <a href="https://tidycal.com/jeremiahcox98/15-minute-consult" target="_blank" class="shq-cta-button shq-cta-button-secondary">Free 15 Min Call</a>
+                </div>
+            `;
+
+            const resultsContainer = document.getElementById('shq-resultsContainer');
+            resultsContainer.innerHTML = resultsHTML;
+            resultsContainer.classList.add('active');
+            
+            document.getElementById('shq-quizContainer').style.display = 'none';
+        }
+
+        // Initialize quiz
+        shqRenderQuestion(0);
+    </script>
+</body>
+</html>
