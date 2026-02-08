@@ -3,21 +3,25 @@
  * This keeps the API token secure on the server side
  */
 
+// CORS headers for all responses
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Max-Age': '86400',
+  'Content-Type': 'application/json'
+};
+
+// Handle OPTIONS preflight requests
+export async function onRequestOptions() {
+  return new Response(null, { 
+    status: 204,
+    headers: corsHeaders
+  });
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
-  
-  // Add CORS headers
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json'
-  };
-  
-  // Handle preflight requests
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
   
   // Get environment variables
   const NOTION_API_TOKEN = env.NOTION_API_TOKEN;
