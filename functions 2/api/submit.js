@@ -61,7 +61,7 @@ export async function onRequestPost(context) {
   try {
     // Parse request body
     const data = await request.json();
-    const { name, email, phone, answers, questions } = data;
+    const { name, email, phone, answers, questions, newsletter, schedule_me, note, consent_emails, consent_schedule } = data;
     
     // Validate required data
     if (!name || !email || !answers || !questions) {
@@ -142,7 +142,28 @@ export async function onRequestPost(context) {
         }
       }
     };
-    
+
+    // Newsletter checkbox (from consent form) – map to Notion "Newsletter"
+    const newsletterChecked = newsletter !== undefined ? !!newsletter : (consent_emails !== undefined ? !!consent_emails : undefined);
+    if (newsletterChecked !== undefined) {
+      properties["Newsletter"] = { "checkbox": newsletterChecked };
+    }
+
+    // Schedule Me checkbox (from consent form) – map to Notion "Schedule Me"
+    const scheduleMeChecked = schedule_me !== undefined ? !!schedule_me : (consent_schedule !== undefined ? !!consent_schedule : undefined);
+    if (scheduleMeChecked !== undefined) {
+      properties["Schedule Me"] = { "checkbox": scheduleMeChecked };
+    }
+
+    // Note (from booking form "Notes to the doctor") – map to Notion "Note"
+    if (note && typeof note === 'string' && note.trim() !== '') {
+      properties["Note"] = {
+        "rich_text": [
+          { "type": "text", "text": { "content": note.trim() } }
+        ]
+      };
+    }
+
     // Build children blocks for page content
     const children = [
       // Results Summary Section

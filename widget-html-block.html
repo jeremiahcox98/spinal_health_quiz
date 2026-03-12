@@ -19,6 +19,9 @@
     max-width: 720px;
     margin: 0 auto;
     box-sizing: border-box;
+    /* Mobile: ensure touch events and no 300ms tap delay */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .shq-widget-wrapper * {
@@ -97,6 +100,7 @@
     position: relative;
     overflow: hidden;
     min-height: 400px;
+    touch-action: manipulation;
 }
 
 .shq-quiz-card::before {
@@ -271,21 +275,33 @@
     justify-content: space-between;
 }
 
-.shq-btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
+/* Base button styles - highly specific to override Elementor */
+.shq-widget-wrapper .shq-btn,
+.shq-widget-wrapper button.shq-btn {
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 10px !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    cursor: pointer !important;
     border: none !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    position: relative;
-    overflow: hidden;
-    background: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    background: none !important;
+    color: inherit !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    min-width: auto !important;
+    width: auto !important;
+    height: auto !important;
 }
 
-.shq-btn::before {
+.shq-widget-wrapper .shq-btn::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -298,43 +314,120 @@
     transition: width 0.6s, height 0.6s;
 }
 
-.shq-btn:active::before {
+.shq-widget-wrapper .shq-btn:active::before {
     width: 300px;
     height: 300px;
 }
 
-.shq-btn-secondary {
-    background: transparent;
-    color: var(--shq-text-light);
-    border: 2px solid var(--shq-border);
+.shq-widget-wrapper .shq-btn-secondary,
+.shq-widget-wrapper button.shq-btn-secondary {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #6B6B6B !important;
+    border: 2px solid #E8E6E1 !important;
+    border-width: 2px !important;
+    border-style: solid !important;
+    border-color: #E8E6E1 !important;
 }
 
-.shq-btn-secondary:hover {
-    border-color: var(--shq-primary);
-    color: var(--shq-primary);
-    transform: translateY(-2px);
+.shq-widget-wrapper .shq-btn-secondary:hover,
+.shq-widget-wrapper button.shq-btn-secondary:hover {
+    border-color: #2C5F5D !important;
+    color: #2C5F5D !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    transform: translateY(-2px) !important;
 }
 
-.shq-btn-primary {
+/* Primary button - maximum specificity to override Elementor */
+.shq-widget-wrapper .shq-btn-primary,
+.shq-widget-wrapper button.shq-btn-primary,
+.shq-widget-wrapper .shq-btn.shq-btn-primary,
+.shq-widget-wrapper button.shq-btn.shq-btn-primary {
     background: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    background-color: #2C5F5D !important;
+    background-image: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    color: #FFFFFF !important;
     color: white !important;
     box-shadow: 0 4px 16px rgba(44, 95, 93, 0.2) !important;
     border: none !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    min-width: auto !important;
+    width: auto !important;
+    height: auto !important;
 }
 
-.shq-btn-primary:hover {
-    transform: translateY(-2px);
+.shq-widget-wrapper .shq-btn-primary:hover,
+.shq-widget-wrapper button.shq-btn-primary:hover,
+.shq-widget-wrapper .shq-btn.shq-btn-primary:hover,
+.shq-widget-wrapper button.shq-btn.shq-btn-primary:hover {
+    transform: translateY(-2px) !important;
     box-shadow: 0 8px 24px rgba(44, 95, 93, 0.3) !important;
     background: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    background-color: #2C5F5D !important;
+    background-image: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    color: #FFFFFF !important;
+    color: white !important;
+    border: none !important;
+}
+
+.shq-widget-wrapper .shq-btn-primary:disabled,
+.shq-widget-wrapper button.shq-btn-primary:disabled,
+.shq-widget-wrapper .shq-btn.shq-btn-primary:disabled,
+.shq-widget-wrapper button.shq-btn.shq-btn-primary:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    background: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    background-color: #2C5F5D !important;
+    background-image: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    color: #FFFFFF !important;
+    color: white !important;
+    border: none !important;
+}
+
+.shq-widget-wrapper .shq-btn-primary:focus,
+.shq-widget-wrapper button.shq-btn-primary:focus {
+    outline: none !important;
+    background: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    background-color: #2C5F5D !important;
+    color: #FFFFFF !important;
     color: white !important;
 }
 
-.shq-btn-primary:disabled {
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-    transform: none;
-    background: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+.shq-widget-wrapper .shq-btn-primary:active,
+.shq-widget-wrapper button.shq-btn-primary:active {
+    background: linear-gradient(135deg, #1a3938 0%, #2C5F5D 100%) !important;
+    background-color: #1a3938 !important;
+    color: #FFFFFF !important;
     color: white !important;
+}
+
+/* Full-width button variant */
+.shq-widget-wrapper .shq-btn-primary[style*="width: 100%"],
+.shq-widget-wrapper button.shq-btn-primary[style*="width: 100%"],
+.shq-widget-wrapper #shq-submitEmailBtn {
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Override common Elementor button classes that might interfere */
+.shq-widget-wrapper .elementor-button,
+.shq-widget-wrapper .elementor-button-wrapper,
+.shq-widget-wrapper [class*="elementor-button"] {
+    all: unset !important;
+}
+
+.shq-widget-wrapper .shq-btn * {
+    all: unset !important;
+    display: inline !important;
 }
 
 .shq-results {
@@ -442,38 +535,75 @@
     margin-top: 1.5rem;
 }
 
-.shq-cta-button {
-    display: inline-block;
-    padding: 0.75rem 2rem;
-    background: linear-gradient(135deg, var(--shq-primary) 0%, var(--shq-primary-dark) 100%);
-    color: white;
-    text-decoration: none;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 8px 24px rgba(44, 95, 93, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
+.shq-widget-wrapper .shq-cta-button,
+.shq-widget-wrapper a.shq-cta-button {
+    display: inline-block !important;
+    padding: 0.75rem 2rem !important;
+    background: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    background-color: #2C5F5D !important;
+    background-image: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    color: #FFFFFF !important;
+    color: white !important;
+    text-decoration: none !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    box-shadow: 0 8px 24px rgba(44, 95, 93, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-align: center !important;
+    border: none !important;
+    border-width: 0 !important;
+    line-height: 1.5 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    min-width: auto !important;
+    width: auto !important;
+    height: auto !important;
+    box-sizing: border-box !important;
 }
 
-.shq-cta-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(44, 95, 93, 0.4);
+.shq-widget-wrapper .shq-cta-button:hover,
+.shq-widget-wrapper a.shq-cta-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 32px rgba(44, 95, 93, 0.4) !important;
+    background: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    background-color: #2C5F5D !important;
+    background-image: linear-gradient(135deg, #2C5F5D 0%, #1a3938 100%) !important;
+    color: #FFFFFF !important;
+    color: white !important;
+    text-decoration: none !important;
 }
 
-.shq-cta-button-secondary {
-    background: transparent;
-    border: 2px solid var(--shq-primary);
-    color: var(--shq-primary);
-    box-shadow: none;
-    padding: 0.65rem 2rem;
-    font-size: 0.85rem;
+.shq-widget-wrapper .shq-cta-button-secondary,
+.shq-widget-wrapper a.shq-cta-button-secondary {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 2px solid #2C5F5D !important;
+    border-width: 2px !important;
+    border-style: solid !important;
+    border-color: #2C5F5D !important;
+    color: #2C5F5D !important;
+    box-shadow: none !important;
+    padding: 0.65rem 2rem !important;
+    font-size: 0.85rem !important;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    text-decoration: none !important;
+    line-height: 1.5 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
 }
 
-.shq-cta-button-secondary:hover {
-    background: rgba(44, 95, 93, 0.05);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(44, 95, 93, 0.15);
+.shq-widget-wrapper .shq-cta-button-secondary:hover,
+.shq-widget-wrapper a.shq-cta-button-secondary:hover {
+    background: rgba(44, 95, 93, 0.05) !important;
+    background-color: rgba(44, 95, 93, 0.05) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(44, 95, 93, 0.15) !important;
+    border-color: #2C5F5D !important;
+    color: #2C5F5D !important;
+    text-decoration: none !important;
 }
 
 .shq-email-form {
@@ -816,10 +946,8 @@
         `;
 
         container.appendChild(questionDiv);
-        
-        setTimeout(() => {
-            questionDiv.classList.add('active');
-        }, 10);
+        /* Add .active immediately so first paint is interactive (avoids mobile "tap to activate" on quiz area) */
+        questionDiv.classList.add('active');
 
         // Add click handlers
         const answerElements = questionDiv.querySelectorAll('.shq-answer');
