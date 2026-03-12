@@ -143,6 +143,11 @@ export async function onRequestPost(context) {
       }
     };
 
+    // Phone – Notion "Phone" property (phone_number type)
+    if (phone && typeof phone === 'string' && phone.trim() !== '') {
+      properties["Phone"] = { "phone_number": phone.trim() };
+    }
+
     // Optional Notion properties – only add if your Notion DB has these columns (exact names).
     // If Notion returns 400 (e.g. property doesn't exist), we retry without them so the quiz still works.
     const optionalProperties = {};

@@ -694,16 +694,17 @@
                 <div class="shqc-booking-form-wrap" id="shqc-bookingFormWrap">
                     <h3>Request an appointment</h3>
                     <div class="shqc-consent-input-group">
-                        <label for="shqc-bookName">Name</label>
-                        <input type="text" id="shqc-bookName" placeholder="Your name" />
+                        <label for="shqc-bookName">Name <span style="color: var(--shqc-text-light); font-weight: normal;">(required)</span></label>
+                        <input type="text" id="shqc-bookName" placeholder="Your name" autocomplete="name" />
                     </div>
                     <div class="shqc-consent-input-group">
-                        <label for="shqc-bookEmail">Email</label>
-                        <input type="email" id="shqc-bookEmail" placeholder="your@email.com" />
+                        <label for="shqc-bookEmail">Email <span style="color: var(--shqc-text-light); font-weight: normal;">(required)</span></label>
+                        <input type="email" id="shqc-bookEmail" placeholder="your@email.com" autocomplete="email" />
                     </div>
                     <div class="shqc-consent-input-group">
-                        <label for="shqc-bookPhone">Phone</label>
-                        <input type="tel" id="shqc-bookPhone" placeholder="(555) 123-4567" />
+                        <label for="shqc-bookPhone">Phone <span style="color: var(--shqc-text-light); font-weight: normal;">(required)</span></label>
+                        <input type="tel" id="shqc-bookPhone" placeholder="(555) 123-4567" autocomplete="tel" />
+                        <div class="shqc-error-message" id="shqc-bookPhoneError">Please enter a valid 10-digit phone number</div>
                     </div>
                     <div class="shqc-consent-input-group">
                         <label for="shqc-bookNote">Notes to the doctor <span style="color: var(--shqc-text-light); font-weight: normal;">(optional)</span></label>
@@ -725,6 +726,25 @@
             document.getElementById('shqc-bookingFormWrap').classList.toggle('active');
         });
 
+        var bookPhoneInput = document.getElementById('shqc-bookPhone');
+        bookPhoneInput.addEventListener('input', function(e) {
+            bookPhoneInput.classList.remove('error');
+            var phoneErr = document.getElementById('shqc-bookPhoneError');
+            if (phoneErr) phoneErr.classList.remove('show');
+            var v = e.target.value.replace(/\D/g, '');
+            if (v.length > 0) {
+                if (v.length <= 3) v = '(' + v;
+                else if (v.length <= 6) v = '(' + v.slice(0, 3) + ') ' + v.slice(3);
+                else v = '(' + v.slice(0, 3) + ') ' + v.slice(3, 6) + '-' + v.slice(6, 10);
+            }
+            e.target.value = v;
+        });
+        bookPhoneInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && e.target.value.length === 5) {
+                e.target.value = e.target.value.slice(1, -1);
+            }
+        });
+
         document.getElementById('shqc-bookSubmitBtn').addEventListener('click', function() {
             const bName = document.getElementById('shqc-bookName').value.trim();
             const bEmail = document.getElementById('shqc-bookEmail').value.trim();
@@ -732,15 +752,30 @@
             const bNote = document.getElementById('shqc-bookNote').value.trim();
             const bookError = document.getElementById('shqc-bookError');
             const bookSuccess = document.getElementById('shqc-bookSuccess');
+            const bookPhoneError = document.getElementById('shqc-bookPhoneError');
             bookError.classList.remove('show');
+            if (bookPhoneError) bookPhoneError.classList.remove('show');
             bookSuccess.classList.remove('show');
             if (!bName || !bEmail) {
-                bookError.textContent = 'Please enter your name and email.';
+                bookError.textContent = 'Please enter your name, email, and phone.';
                 bookError.classList.add('show');
                 return;
             }
+            if (!bPhone) {
+                bookError.textContent = 'Please enter your phone number.';
+                bookError.classList.add('show');
+                return;
+            }
+            if (!shqcValidatePhone(bPhone)) {
+                document.getElementById('shqc-bookPhone').classList.add('error');
+                if (bookPhoneError) {
+                    bookPhoneError.textContent = 'Please enter a valid 10-digit phone number.';
+                    bookPhoneError.classList.add('show');
+                }
+                return;
+            }
             if (!shqcValidateEmail(bEmail)) {
-                bookError.textContent = 'Please enter a valid email.';
+                bookError.textContent = 'Please enter a valid email address.';
                 bookError.classList.add('show');
                 return;
             }
