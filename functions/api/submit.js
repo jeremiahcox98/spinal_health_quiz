@@ -61,7 +61,7 @@ export async function onRequestPost(context) {
   try {
     // Parse request body
     const data = await request.json();
-    const { name, email, phone, answers, questions, newsletter, schedule_me, note, consent_emails, consent_schedule } = data;
+    const { name, email, phone, answers, questions, newsletter, schedule_me, note, consent_emails, consent_schedule, intent } = data;
     
     // Validate required data
     if (!name || !email || !answers || !questions) {
@@ -165,6 +165,9 @@ export async function onRequestPost(context) {
           { "type": "text", "text": { "content": note.trim() } }
         ]
       };
+    }
+    if (intent === 'book_appointment') {
+      optionalProperties["Requested Booking"] = { "checkbox": true };
     }
     Object.assign(properties, optionalProperties);
 
