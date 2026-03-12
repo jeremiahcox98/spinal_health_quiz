@@ -61,7 +61,7 @@ export async function onRequestPost(context) {
   try {
     // Parse request body
     const data = await request.json();
-    const { name, email, phone, answers, questions, newsletter, schedule_me, note, consent_emails, consent_schedule, intent } = data;
+    const { name, email, phone, answers, questions, newsletter, schedule_me, note, consent_emails, consent_schedule, intent, gclid } = data;
     
     // Validate required data
     if (!name || !email || !answers || !questions) {
@@ -168,6 +168,13 @@ export async function onRequestPost(context) {
     }
     if (intent === 'book_appointment') {
       optionalProperties["Requested Booking"] = { "checkbox": true };
+    }
+    if (gclid && typeof gclid === 'string' && gclid.trim() !== '') {
+      optionalProperties["GCLID"] = {
+        "rich_text": [
+          { "type": "text", "text": { "content": gclid.trim() } }
+        ]
+      };
     }
     Object.assign(properties, optionalProperties);
 

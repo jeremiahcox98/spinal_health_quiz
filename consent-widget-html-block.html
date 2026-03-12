@@ -533,6 +533,12 @@
         document.getElementById('shqc-progressFill').style.width = ((shqcCurrentQuestion + 1) / shqcQuestions.length) * 100 + '%';
     }
 
+    function shqcGetGclid() {
+        try {
+            return localStorage.getItem('gclid') || (document.cookie.match(/gclid=([^;]+)/) || [])[1] || '';
+        } catch (e) { return ''; }
+    }
+
     function shqcShowConsentForm() {
         document.getElementById('shqc-quizContainer').style.display = 'none';
         const formEl = document.getElementById('shqc-consentForm');
@@ -565,6 +571,7 @@
                         <span>I'd like to be scheduled for an appointment</span>
                     </label>
                 </div>
+                <input type="hidden" id="shqc-gclid" name="gclid" value="" />
                 <div class="shqc-success-message" id="shqc-consentSuccess">Thanks! Taking you to your results.</div>
                 <div class="shqc-consent-actions">
                     <button type="button" class="shqc-btn shqc-btn-primary" id="shqc-submitConsentBtn">Submit &amp; Get Results</button>
@@ -572,6 +579,9 @@
                 </div>
             </div>`;
         formEl.classList.add('active');
+
+        var gclidEl = document.getElementById('shqc-gclid');
+        if (gclidEl) gclidEl.value = shqcGetGclid() || '';
 
         const nameInput = document.getElementById('shqc-nameInput');
         const emailInput = document.getElementById('shqc-emailInput');
@@ -650,7 +660,8 @@
                     consent_emails: consentEmails,
                     consent_schedule: consentSchedule,
                     newsletter: consentEmails,
-                    schedule_me: consentSchedule
+                    schedule_me: consentSchedule,
+                    gclid: (document.getElementById('shqc-gclid') && document.getElementById('shqc-gclid').value) || shqcGetGclid() || ''
                 })
             });
         } catch (e) { console.warn('Submit error:', e); }
@@ -710,6 +721,7 @@
                         <label for="shqc-bookNote">Notes to the doctor <span style="color: var(--shqc-text-light); font-weight: normal;">(optional)</span></label>
                         <textarea id="shqc-bookNote" placeholder="Anything you'd like the doctor to know before your appointment..." rows="3"></textarea>
                     </div>
+                    <input type="hidden" id="shqc-gclid-booking" name="gclid" value="" />
                     <div class="shqc-error-message" id="shqc-bookError"></div>
                     <div class="shqc-success-message" id="shqc-bookSuccess" style="margin-top: 0.5rem;">We'll be in touch to schedule.</div>
                     <button type="button" class="shqc-btn shqc-btn-primary" id="shqc-bookSubmitBtn">Submit</button>
@@ -721,6 +733,9 @@
         resultsContainer.innerHTML = resultsHTML;
         resultsContainer.classList.add('active');
         document.getElementById('shqc-quizContainer').style.display = 'none';
+
+        var gclidBooking = document.getElementById('shqc-gclid-booking');
+        if (gclidBooking) gclidBooking.value = shqcGetGclid() || '';
 
         document.getElementById('shqc-bookBtn').addEventListener('click', function() {
             document.getElementById('shqc-bookingFormWrap').classList.toggle('active');
@@ -790,7 +805,8 @@
                     note: bNote || '',
                     answers: shqcAnswers,
                     questions: shqcQuestions,
-                    intent: 'book_appointment'
+                    intent: 'book_appointment',
+                    gclid: (document.getElementById('shqc-gclid-booking') && document.getElementById('shqc-gclid-booking').value) || shqcGetGclid() || ''
                 })
             }).then(function() {
                 bookSuccess.classList.add('show');
