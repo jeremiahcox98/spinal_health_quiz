@@ -163,24 +163,6 @@ export async function onRequestPost(context) {
     }
     Object.assign(properties, optionalProperties);
 
-    // Helper: create Notion page with given props (used for retry without optional props if needed)
-    const createNotionPage = async (props) => {
-      const res = await fetch('https://api.notion.com/v1/pages', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${NOTION_API_TOKEN}`,
-          'Content-Type': 'application/json',
-          'Notion-Version': '2022-06-28'
-        },
-        body: JSON.stringify({
-          parent: { database_id: NOTION_DATABASE_ID },
-          properties: props,
-          children: children
-        })
-      });
-      return res;
-    };
-
     // Build children blocks for page content
     const children = [
       // Results Summary Section
@@ -268,6 +250,24 @@ export async function onRequestPost(context) {
         }
       });
     });
+
+    // Helper: create Notion page with given props (used for retry without optional props if needed)
+    const createNotionPage = async (props) => {
+      const res = await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NOTION_API_TOKEN}`,
+          'Content-Type': 'application/json',
+          'Notion-Version': '2022-06-28'
+        },
+        body: JSON.stringify({
+          parent: { database_id: NOTION_DATABASE_ID },
+          properties: props,
+          children: children
+        })
+      });
+      return res;
+    };
     
     // Create the page with properties and children
     let notionResponse = await createNotionPage(properties);
