@@ -49,6 +49,19 @@
 
 .shqc-header p { color: var(--shqc-text-light) !important; font-size: 0.9rem; font-weight: 300; }
 
+.shqc-disclaimer {
+    font-size: 0.75rem;
+    color: var(--shqc-text-light) !important;
+    line-height: 1.4;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    text-align: center;
+    transition: opacity 0.3s ease;
+}
+.shqc-disclaimer.hidden {
+    display: none !important;
+}
+
 .shqc-progress-bar {
     height: 3px;
     background: var(--shqc-border);
@@ -434,12 +447,27 @@
             <div id="shqc-consentForm" class="shqc-consent-form"></div>
             <div id="shqc-resultsContainer" class="shqc-results"></div>
         </div>
+        <p class="shqc-disclaimer" id="shqc-disclaimer">This quiz is for educational purposes only and does not provide a medical diagnosis. Results are informational and should not replace a professional evaluation.</p>
     </div>
 </div>
 
 <script>
 (function() {
     const SHQC_API = 'https://spinal-health-quiz.pages.dev/api/submit';
+
+    function trackEvent(eventName, extraData) {
+        try {
+            window.dataLayer = window.dataLayer || [];
+            var payload = Object.assign({
+                event: eventName,
+                quiz_name: "spinal_health_quiz"
+            }, extraData || {});
+            if (typeof localStorage !== 'undefined' && localStorage.getItem('gclid')) {
+                payload.gclid = localStorage.getItem('gclid');
+            }
+            dataLayer.push(payload);
+        } catch (e) { /* fail safely if dataLayer/GTM not loaded */ }
+    }
 
     const shqcQuestions = [
         { question: "How often do you have back or neck pain?", answers: [ { text: "Rarely or never", value: 3 }, { text: "A few days a month", value: 2 }, { text: "Most days of the week", value: 1 }, { text: "Daily or almost always", value: 0 } ] },
@@ -507,6 +535,11 @@
     }
 
     function shqcNextQuestion() {
+        if (shqcCurrentQuestion === 0) {
+            trackEvent('quiz_start', { gclid: localStorage.getItem('gclid') });
+            var disclaimer = document.getElementById('shqc-disclaimer');
+            if (disclaimer) disclaimer.classList.add('hidden');
+        }
         const current = document.querySelector('.shqc-question.active');
         current.classList.remove('active');
         current.classList.add('exit');
@@ -525,6 +558,10 @@
         setTimeout(function() {
             current.remove();
             shqcCurrentQuestion--;
+            if (shqcCurrentQuestion === 0) {
+                var disclaimer = document.getElementById('shqc-disclaimer');
+                if (disclaimer) disclaimer.classList.remove('hidden');
+            }
             shqcRenderQuestion(shqcCurrentQuestion);
         }, 500);
     }
@@ -568,7 +605,7 @@
                     </label>
                     <label class="shqc-consent-checkbox">
                         <input type="checkbox" id="shqc-consentSchedule" />
-                        <span>I'd like to be scheduled for an appointment</span>
+                        <span>Give me a call about the new patient schedule</span>
                     </label>
                 </div>
                 <input type="hidden" id="shqc-gclid" name="gclid" value="" />
@@ -641,6 +678,13 @@
             phoneInput.classList.add('error');
             document.getElementById('shqc-phoneError').classList.add('show');
             return;
+        }
+
+        if (consentEmails) {
+            trackEvent('quiz_lead_info', { gclid: localStorage.getItem('gclid') });
+        }
+        if (consentSchedule) {
+            trackEvent('quiz_booking_request', { gclid: localStorage.getItem('gclid') });
         }
 
         const btn = document.getElementById('shqc-submitConsentBtn');
@@ -734,6 +778,8 @@
         resultsContainer.classList.add('active');
         document.getElementById('shqc-quizContainer').style.display = 'none';
 
+        trackEvent('quiz_complete', { gclid: localStorage.getItem('gclid') });
+
         var gclidBooking = document.getElementById('shqc-gclid-booking');
         if (gclidBooking) gclidBooking.value = shqcGetGclid() || '';
 
@@ -794,6 +840,7 @@
                 bookError.classList.add('show');
                 return;
             }
+            trackEvent('quiz_booking_request', { gclid: localStorage.getItem('gclid') });
             document.getElementById('shqc-bookSubmitBtn').disabled = true;
             fetch(SHQC_API, {
                 method: 'POST',

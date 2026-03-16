@@ -76,42 +76,12 @@ export async function onRequestPost(context) {
     }
     
     console.log('Processing submission for:', name, email, phone || 'no phone');
-    
-    // Calculate results
-    const totalScore = answers.reduce((sum, val) => sum + val, 0);
-    const maxScore = questions.length * 3;
-    const percentage = Math.round((totalScore / maxScore) * 100);
-    
-    let severity, description, title, recommendation;
-    if (percentage <= 25) {
-      severity = "Excellent";
-      title = "Great News!";
-      description = "Your spinal health appears to be in excellent condition. You're experiencing minimal to no discomfort, which suggests good posture habits and spinal care. Continue maintaining your current lifestyle and preventive practices.";
-      recommendation = "Keep up your healthy habits and consider regular check-ups to maintain optimal spinal health.";
-    } else if (percentage <= 50) {
-      severity = "Moderate";
-      title = "Time for Attention";
-      description = "You're experiencing some spinal discomfort that warrants attention. While not severe, these symptoms suggest your spine could benefit from targeted care and lifestyle adjustments to prevent progression.";
-      recommendation = "We recommend consulting with a spinal health specialist to develop a personalized care plan.";
-    } else {
-      severity = "Significant";
-      title = "Immediate Action Recommended";
-      description = "Your responses indicate significant spinal health challenges that are affecting your daily life. These symptoms suggest you could greatly benefit from professional evaluation and comprehensive treatment.";
-      recommendation = "We strongly recommend scheduling a consultation with our spinal health experts as soon as possible.";
-    }
-    
-    // Prepare quiz answers data
-    const quizAnswers = questions.map((q, index) => {
-      const answerValue = answers[index];
-      const selectedAnswer = q.answers.find(a => a.value === answerValue);
-      return {
-        question: q.question,
-        answer: selectedAnswer ? selectedAnswer.text : 'Not answered',
-        score: answerValue
-      };
-    });
-    
-    // Prepare Notion page properties
+
+    // Optional Notion properties – resolve consent flags (used for GHL gating too)
+    const newsletterChecked = newsletter !== undefined ? !!newsletter : (consent_emails !== undefined ? !!consent_emails : undefined);
+    const scheduleMeChecked = schedule_me !== undefined ? !!schedule_me : (consent_schedule !== undefined ? !!consent_schedule : undefined);
+
+    // Prepare Notion page properties – lead info and consent only (no quiz/score/severity for compliance)
     const properties = {
       "Name": {
         "title": [
@@ -129,17 +99,6 @@ export async function onRequestPost(context) {
         "date": {
           "start": new Date().toISOString()
         }
-      },
-      "Total Score": {
-        "number": totalScore
-      },
-      "Score Percentage": {
-        "number": percentage
-      },
-      "Severity Level": {
-        "select": {
-          "name": severity
-        }
       }
     };
 
@@ -149,13 +108,10 @@ export async function onRequestPost(context) {
     }
 
     // Optional Notion properties – only add if your Notion DB has these columns (exact names).
-    // If Notion returns 400 (e.g. property doesn't exist), we retry without them so the quiz still works.
     const optionalProperties = {};
-    const newsletterChecked = newsletter !== undefined ? !!newsletter : (consent_emails !== undefined ? !!consent_emails : undefined);
     if (newsletterChecked !== undefined) {
       optionalProperties["Newsletter"] = { "checkbox": newsletterChecked };
     }
-    const scheduleMeChecked = schedule_me !== undefined ? !!schedule_me : (consent_schedule !== undefined ? !!consent_schedule : undefined);
     if (scheduleMeChecked !== undefined) {
       optionalProperties["Schedule Me"] = { "checkbox": scheduleMeChecked };
     }
@@ -178,95 +134,9 @@ export async function onRequestPost(context) {
     }
     Object.assign(properties, optionalProperties);
 
-    // Build children blocks for page content
-    const children = [
-      // Results Summary Section
-      {
-        "object": "block",
-        "type": "heading_1",
-        "heading_1": {
-          "rich_text": [{"type": "text", "text": {"content": "Assessment Results"}}]
-        }
-      },
-      {
-        "object": "block",
-        "type": "paragraph",
-        "paragraph": {
-          "rich_text": [
-            {"type": "text", "text": {"content": "Score: "}},
-            {"type": "text", "text": {"content": `${totalScore} out of ${maxScore}`}, "annotations": {"bold": true}},
-            {"type": "text", "text": {"content": ` (${percentage}%)`}}
-          ]
-        }
-      },
-      {
-        "object": "block",
-        "type": "paragraph",
-        "paragraph": {
-          "rich_text": [
-            {"type": "text", "text": {"content": "Severity Level: "}},
-            {"type": "text", "text": {"content": severity}, "annotations": {"bold": true}}
-          ]
-        }
-      },
-      {
-        "object": "block",
-        "type": "divider",
-        "divider": {}
-      },
-      // Results Description
-      {
-        "object": "block",
-        "type": "heading_2",
-        "heading_2": {
-          "rich_text": [{"type": "text", "text": {"content": title}}]
-        }
-      },
-      {
-        "object": "block",
-        "type": "paragraph",
-        "paragraph": {
-          "rich_text": [{"type": "text", "text": {"content": description}}]
-        }
-      },
-      {
-        "object": "block",
-        "type": "divider",
-        "divider": {}
-      },
-      // Quiz Answers Section
-      {
-        "object": "block",
-        "type": "heading_2",
-        "heading_2": {
-          "rich_text": [{"type": "text", "text": {"content": "Quiz Answers"}}]
-        }
-      }
-    ];
-    
-    // Add each question and answer as blocks
-    quizAnswers.forEach((qa, index) => {
-      children.push({
-        "object": "block",
-        "type": "heading_3",
-        "heading_3": {
-          "rich_text": [{"type": "text", "text": {"content": `Question ${index + 1}: ${qa.question}`}}]
-        }
-      });
-      children.push({
-        "object": "block",
-        "type": "bulleted_list_item",
-        "bulleted_list_item": {
-          "rich_text": [
-            {"type": "text", "text": {"content": "Answer: "}},
-            {"type": "text", "text": {"content": qa.answer}, "annotations": {"bold": true}},
-            {"type": "text", "text": {"content": ` (Score: ${qa.score}/3)`}}
-          ]
-        }
-      });
-    });
+    // No quiz/score/answers stored in Notion page body (compliance)
+    const children = [];
 
-    // Helper: create Notion page with given props (used for retry without optional props if needed)
     const createNotionPage = async (props) => {
       const res = await fetch('https://api.notion.com/v1/pages', {
         method: 'POST',
@@ -323,75 +193,35 @@ export async function onRequestPost(context) {
 
     const result = await notionResponse.json();
     console.log('Successfully created Notion page:', result.id);
-    
-    // Submit to GoHighLevel (non-blocking - don't fail if this fails)
+
+    // GoHighLevel: only send lead info (name, email, phone), and only if user gave permission or requested booking (compliance)
     let ghlSuccess = false;
     let ghlError = null;
-    
-    console.log('GHL Check:', {
-      hasLocationId: !!GHL_LOCATION_ID,
-      hasApiKey: !!GHL_API_KEY,
-      locationIdValue: GHL_LOCATION_ID ? '***' : 'missing',
-      apiKeyValue: GHL_API_KEY ? '***' : 'missing'
-    });
-    
-    if (GHL_LOCATION_ID && GHL_API_KEY) {
+    const sendToGhl = (newsletterChecked || scheduleMeChecked || intent === 'book_appointment');
+
+    if (GHL_LOCATION_ID && GHL_API_KEY && sendToGhl) {
       try {
-        // Split name into first and last name
         const nameParts = name.trim().split(' ');
         const firstName = nameParts[0] || name;
         const lastName = nameParts.slice(1).join(' ') || '';
-        
-        // Prepare GHL contact data
+
         const ghlContactData = {
           locationId: GHL_LOCATION_ID,
           firstName: firstName,
           lastName: lastName,
           email: email,
-          tags: ['Spinal Health Quiz'],
-          customFields: [
-            {
-              id: '5C1LiDpH7ukNFMRYzEp8', // TotalScore
-              value: totalScore.toString()
-            },
-            {
-              id: 'uMPWPn8TREDnnzPz4f0l', // MaxScore
-              value: maxScore.toString()
-            },
-            {
-              id: 'G8s1sZhDPwL6OIZubr9f', // ScorePercentage
-              value: percentage.toString()
-            },
-            {
-              id: 'tFdAzTE1i8HPa5ssKHpW', // SeverityLevel
-              value: severity
-            },
-            {
-              id: 'xdYFYIurcBJ54B9MoD73', // ResultsTitle
-              value: title
-            },
-            {
-              id: 'gamDVLAjwCgmGQe6zPTb', // ResultsDescription
-              value: description
-            },
-            {
-              id: 'HKP0m08jIERA624KbeBI', // Recommendation
-              value: recommendation
-            }
-          ]
+          tags: ['Spinal Health Quiz']
         };
-        
-        // Add phone if provided
+
         if (phone && phone.trim() !== '') {
-          // Clean phone number (remove non-digits, then format)
           const cleanedPhone = phone.replace(/\D/g, '');
           if (cleanedPhone.length >= 10) {
             ghlContactData.phone = cleanedPhone;
           }
         }
-        
-        console.log('Submitting to GoHighLevel:', { locationId: GHL_LOCATION_ID, name, email, hasPhone: !!ghlContactData.phone });
-        
+
+        console.log('Submitting lead to GoHighLevel (no result data):', { locationId: GHL_LOCATION_ID, name, email, hasPhone: !!ghlContactData.phone });
+
         const ghlResponse = await fetch('https://services.leadconnectorhq.com/contacts/', {
           method: 'POST',
           headers: {
@@ -401,39 +231,10 @@ export async function onRequestPost(context) {
           },
           body: JSON.stringify(ghlContactData)
         });
-        
+
         if (ghlResponse.ok) {
           const ghlResult = await ghlResponse.json();
-          const contactId = ghlResult.contact?.id;
-          console.log('Successfully created GHL contact:', contactId);
-          
-          // Update contact with custom fields (sometimes they don't set on creation)
-          if (contactId) {
-            try {
-              const updateResponse = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}`, {
-                method: 'PUT',
-                headers: {
-                  'Authorization': `Bearer ${GHL_API_KEY}`,
-                  'Content-Type': 'application/json',
-                  'Version': '2021-07-28'
-                },
-                body: JSON.stringify({
-                  customFields: ghlContactData.customFields
-                })
-              });
-              
-              if (updateResponse.ok) {
-                console.log('Successfully updated GHL contact with custom fields');
-              } else {
-                const updateError = await updateResponse.text();
-                console.error('Error updating GHL custom fields:', updateError);
-              }
-            } catch (updateErr) {
-              console.error('Error updating GHL contact:', updateErr);
-              // Don't fail - contact was created successfully
-            }
-          }
-          
+          console.log('Successfully created GHL contact:', ghlResult.contact?.id);
           ghlSuccess = true;
         } else {
           const errorText = await ghlResponse.text();
@@ -443,21 +244,15 @@ export async function onRequestPost(context) {
           } catch (e) {
             ghlErrorData = { message: errorText, status: ghlResponse.status };
           }
-          console.error('GoHighLevel API error:', {
-            status: ghlResponse.status,
-            statusText: ghlResponse.statusText,
-            error: ghlErrorData
-          });
+          console.error('GoHighLevel API error:', { status: ghlResponse.status, error: ghlErrorData });
           ghlError = ghlErrorData.message || ghlErrorData.error || `HTTP ${ghlResponse.status}`;
         }
       } catch (ghlErr) {
-        console.error('Error submitting to GoHighLevel:', {
-          message: ghlErr.message,
-          stack: ghlErr.stack
-        });
+        console.error('Error submitting to GoHighLevel:', ghlErr.message);
         ghlError = ghlErr.message;
-        // Don't throw - continue even if GHL fails
       }
+    } else if (!sendToGhl) {
+      console.log('Skipping GHL: no consent or booking request');
     } else {
       console.log('GoHighLevel credentials not configured, skipping GHL submission');
       ghlError = 'GHL credentials not found in environment variables';
